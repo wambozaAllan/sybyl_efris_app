@@ -83,6 +83,7 @@ $(document).ready(function(){
         else {
             var s = $(".check-invoice:checked")
             $.ajax({
+                method: "POST",
                 url: "http://localhost:9880/efristcs/ws/tcsapp/getInformation",
                 data: {
                     "data": {
