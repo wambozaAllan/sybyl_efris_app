@@ -84,6 +84,9 @@ $(document).ready(function(){
             var s = $(".check-invoice:checked")
             $.ajax({
                 method: "POST",
+                headers: {
+                    "Host":"192.168.0.232"
+                },
                 url: "http://localhost:9880/efristcs/ws/tcsapp/getInformation",
                 data: {
                     "data": {
