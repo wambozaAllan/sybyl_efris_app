@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %} {{ page }} {% endblock %}
+
+{% block content %}
+
+{% include 'core/header_nav.html' %}
+
+{% include 'core/left_sidebar.html' %}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="dashboard-header d-flex flex-column grid-margin">
+            <div class="d-flex align-items-center justify-content-between flex-wrap border-bottom pb-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="d-none d-md-flex">
+                        <p class="text-muted mb-0 tx-13 cursor-pointer">Dashboard</p>
+                        <i class="mdi mdi-chevron-right text-muted"></i>
+                        <p class="text-muted mb-0 tx-13 cursor-pointer">{{ page }}</p>
+                    </div>
+                </div>
+                <div class="button-wrapper d-flex align-items-center mt-md-3 mt-xl-0">
+                    <div class="dropdown mr-3 d-none d-md-block">
+                    </div>
+                    <div class="dropdown mr-3 d-none d-md-block">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="margin-bottom: 2%;">
+                            <div class="col-xl-4">
+                                <input type="text" class="form-control" id="invoice-number"
+                                    placeholder="Invoice Number" />
+                            </div>
+                            <div class="col-xl-4">
+                                <select class="form-control" id="invoice-status">
+                                    <option>-- Select Invoice Status --</option>
+                                    <option>Uploaded</option>
+                                    <option>Not Uploaded</option>
+                                    <option>Failed Upload</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-4">
+                                <button type="button" class="btn btn-primary" id="search-invoices">Search</button>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-primary" id="upload-invoices">Upload
+                                Invoice(s)</button>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-bordered" id="invoices-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">
+                                            <input type="checkbox" id="check-all-invoices"/>
+                                        </th>
+                                        <th>
+                                            #
+                                        </th>
+                                        <th>
+                                            Invoice Number
+                                        </th>
+                                        <th>
+                                            Issue Date
+                                        </th>
+                                        <th>
+                                            Sales Person
+                                        </th>
+                                        <th>
+                                            Invoice Type
+                                        </th>
+                                        <th>
+                                            Status
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- content-wrapper ends -->
+    {% include 'core/footer.html' %}
+</div>
+<!-- main-panel ends -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'base/js/invoices.js' %}"></script>
+<script src="{% static 'base/js/base.js' %}"></script>
+{% endblock %}
