@@ -82,10 +82,74 @@ $(document).ready(function(){
         } 
         else {
             var s = $(".check-invoice:checked")
+            var documentNumber = s[0].value;
+            var documentDetails = $.ajax({
+                url: "http://localhost:8280/services/GetDocuments/getSpecificDocument?OrderNumber="+documentNumber,
+                headers: {
+                    "Accept": "application/json",
+                },
+                beforeSend: function(request) {
+                    console.log("before send");
+                },
+                success: function(result, status, xhr) {
+                    console.log("success");
+                    console.log(result);
+                },
+                error: function(xhr, textStatus, errorMessage) {
+                    console.log(xhr)
+                    console.log("error, "+ errorMessage);
+                },
+              });
+
+              var documentLines = $.ajax({
+                url: "http://localhost:8280/services/GetDocuments/getSpecificDocument?OrderNumber="+documentNumber,
+                headers: {
+                    "Accept": "application/json",
+                },
+                beforeSend: function(request) {
+                    console.log("before send");
+                },
+                success: function(result, status, xhr) {
+                    console.log("success");
+                    console.log(result);
+                },
+                error: function(xhr, textStatus, errorMessage) {
+                    console.log(xhr)
+                    console.log("error, "+ errorMessage);
+                },
+              });
+
+            $.when(documentDetails, documentLines).then(function(data1, data2){
+                console.log(data1)
+                console.log(data2);
+            });
+            // var companyInfor = $.ajax({
+            //     url: "http://localhost:8000/dashboard/load_company_info",
+            //     beforeSend: function(request) {
+            //         console.log("before send");
+            //     },
+            //     success: function(result, status, xhr) {
+            //         console.log("success");
+            //         console.log(result);
+            //         console.log(result.Company.Details[0].Address)
+            //     },
+            //     error: function(xhr, textStatus, errorMessage) {
+            //         console.log(xhr)
+            //         console.log("error, "+ errorMessage);
+            //     },
+            //   });
+        }
+    
+        function loadInvoices() {
+            
+            
+              
             $.ajax({
                 method: "POST",
                 headers: {
-                    "Host":"192.168.0.232"
+                    "Content-Type":"application/json",
+                    "Accept":"application/json"
+        
                 },
                 url: "http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation",
                 data: {
@@ -110,7 +174,7 @@ $(document).ready(function(){
                         "deviceMAC": "005056B65332",
                         "deviceNo": "TCSff5ba51958634436",
                         "tin": "1000024517",
-                "brn": "",
+                        "brn": "",
                         "taxpayerID": "1000024517",
                         "longitude": "116.397128",
                         "latitude": "39.916527",
@@ -134,7 +198,7 @@ $(document).ready(function(){
                 error: function(xhr, textStatus, errorMessage) {
                     console.log(xhr)
                 },
-              });
+              });              
             // console.log(s.length);
             // console.log(s[0].value);
             // for(a = 0; a < s.length; a++){
