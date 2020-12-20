@@ -161,7 +161,6 @@ def upload_document(request):
         while counter < number_of_lines:
             tax = str(float('{:.2f}'.format(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))))
             total = str(float('{:.2f}'.format(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))))
-            tax_amount = str(float(partdata[counter]['VatProdPostingGroup'] ) - float(partdata[counter]['Amount'] ))
             customerNumber = partdata[counter]['CustomerNumber']
 
             goodsDetailsBody = ('{'
