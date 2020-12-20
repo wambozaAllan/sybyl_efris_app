@@ -6,6 +6,7 @@ import requests
 from datetime import datetime
 import base64
 import dateutil.parser
+import json
 
 def items(request):
     context = {
@@ -67,7 +68,7 @@ def upload_document(request):
     print('documentnumber = ', ddd)
     data = {}
     now = datetime.now()
-    datetime_str = now.strftime("%d/%m/%Y %H:%M:%S")
+    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
     company_infor_response = requests.get('http://localhost:8280/services/GetCompanyInformation/getcompanyinfor', headers={'Accept':'application/json'})
 
@@ -274,9 +275,12 @@ def upload_document(request):
     message_bytes = upload_invoice_message.encode('ascii')
     base64_message = base64.b64encode(message_bytes).decode('ascii')
 
+    testbase64message = ('ewoJInNlbGxlckRldGFpbHMiOiB7CgkidGluIjogIjEwMDAwMjQ1MTciLAoJIm5pbkJybiI6ICIvUjEwMDAwMDAxOTMzNzMiLAoJImxlZ2FsTmFtZSI6ICJTWUJZTCBMSU1JVEVEIiwKCSJidXNpbmVzc05hbWUiOiAibGlzaSIsCgkiYWRkcmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkibW9iaWxlUGhvbmUiOiAiMDc3Mjc2NTc2NSIsCgkibGluZVBob25lIjogIisyNTYgNDEgNDMwNTQwMCIsCgkiZW1haWxBZGRyZXNzIjogImFsYmVydEBzeWJ5bC5jb20iLAoJInBsYWNlT2ZCdXNpbmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkicmVmZXJlbmNlTm8iOiAiIiwKCSJicmFuY2hJZCI6ICIiCgl9LAoJImJhc2ljSW5mb3JtYXRpb24iOiB7CgkiaW52b2ljZU5vIjogIiIsCgkiYW50aWZha2VDb2RlIjogIiIsCgkiZGV2aWNlTm8iOiAiVENTZmY1YmE1MTk1ODYzNDQzNiIsCgkiaXNzdWVkRGF0ZSI6ICIyMDIwLTEyLTIwIDE3OjEzOjEyIiwKCSJvcGVyYXRvciI6ICJBbGxhbiIsCgkiY3VycmVuY3kiOiAiVUdYIiwKCSJvcmlJbnZvaWNlSWQiOiAiIiwKCSJpbnZvaWNlVHlwZSI6ICIxIiwJCgkiaW52b2ljZUtpbmQiOiAiMSIsCgkiZGF0YVNvdXJjZSI6ICIxMDEiLAoJImludm9pY2VJbmR1c3RyeUNvZGUiOiAiMTAyIiwKCSJpc0JhdGNoIjogIjAiCgl9LAoJImJ1eWVyRGV0YWlscyI6IHsKCSJidXllclRpbiI6ICIxMDAwMjcyNDc4IiwKCSJidXllck5pbkJybiI6ICIiLAoJImJ1eWVyUGFzc3BvcnROdW0iOiAiIiwKCSJidXllckxlZ2FsTmFtZSI6ICJBbWVyaWNhbiBFbWJhc3N5IEthbXBhbGEiLAoJImJ1eWVyQnVzaW5lc3NOYW1lIjogIkFtZXJpY2FuIEVtYmFzc3kgS2FtcGFsYSIsCgkiYnV5ZXJBZGRyZXNzIjogIkdTTyA2My82NyBTcHJpbmcgUm9hZCBCdWdvbG9iaSIsCgkiYnV5ZXJFbWFpbCI6ICIxMjM0NTZAMTYzLmNvbSIsCgkiYnV5ZXJNb2JpbGVQaG9uZSI6ICIxNTUwMTIzNDU2NyIsCgkiYnV5ZXJMaW5lUGhvbmUiOiAiMDQxNCAzNDUgMTIzIiwKCSJidXllclBsYWNlT2ZCdXNpIjogImJlaWppbiIsCgkiYnV5ZXJUeXBlIjogIjEiLAoJImJ1eWVyQ2l0aXplbnNoaXAiOiAiMSIsCgkiYnV5ZXJTZWN0b3IiOiAiMSIsCgkiYnV5ZXJSZWZlcmVuY2VObyI6ICIwMDAwMDAwMDAwMSIKCX0sCgkiYnV5ZXJFeHRlbmQiOiB7CgkicHJvcGVydHlUeXBlIjogIiIsCgkiZGlzdHJpY3QiOiAiIiwKCSJtdW5pY2lwYWxpdHlDb3VudHkiOiAiIiwKCSJkaXZpc2lvblN1YmNvdW50eSI6ICIiLAoJInRvd24iOiAiIiwKCSJjZWxsVmlsbGFnZSI6ICIiLAoJImVmZmVjdGl2ZVJlZ2lzdHJhdGlvbkRhdGUiOiAiIiwKCSJtZXRlclN0YXR1cyI6ICIiCgl9LAoJImdvb2RzRGV0YWlscyI6IFt7CgkiaXRlbSI6ICJTdXBlciBTZXJ2ZXJzIiwKCSJpdGVtQ29kZSI6ICIzMzIyREQiLAoJInF0eSI6ICIxIiwKCSJ1bml0T2ZNZWFzdXJlIjogIkJveCIsCgkidW5pdFByaWNlIjogIjEwMDAwMDAuMDAiLAoJInRvdGFsIjogIjEwMDAwMDAuMDAiLAoJInRheFJhdGUiOiAiMC4xOCIsCgkidGF4IjogIjEyLjg4IiwKCSJkaXNjb3VudFRvdGFsIjogIjE4LjAwIiwKCSJkaXNjb3VudFRheFJhdGUiOiAiMC4xOCIsCgkib3JkZXJOdW1iZXIiOiAiMCIsCgkiZGlzY291bnRGbGFnIjogIjEiLAoJImRlZW1lZEZsYWciOiAiMiIsCgkiZXhjaXNlRmxhZyI6ICIyIiwKCSJjYXRlZ29yeUlkIjogIiIsCgkiY2F0ZWdvcnlOYW1lIjogIiIsCgkiZ29vZHNDYXRlZ29yeUlkIjogIjQzMjExNTAxIiwKCSJnb29kc0NhdGVnb3J5TmFtZSI6ICIiLAoJImV4Y2lzZVJhdGUiOiAiIiwKCSJleGNpc2VSdWxlIjogIiIsCgkiZXhjaXNlVGF4IjogIiIsCgkicGFjayI6ICIiLAoJInN0aWNrIjogIiIsCgkiZXhjaXNlVW5pdCI6ICIiLAoJImV4Y2lzZUN1cnJlbmN5IjogIiIsCgkiZXhjaXNlUmF0ZU5hbWUiOiAiIgoJfV0sCiJ0YXhEZXRhaWxzIjogW3sKInRheENhdGVnb3J5IjogIlN0YW5kYXJkIiwKIm5ldEFtb3VudCI6ICI4MjAwMDAiLAoidGF4UmF0ZSI6ICIwLjE4IiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJleGNpc2VVbml0IjogIiIsCiJleGNpc2VDdXJyZW5jeSI6ICJVR1giLAoidGF4UmF0ZU5hbWUiOiAiMTIzIgp9XSwKInN1bW1hcnkiOiB7CiJuZXRBbW91bnQiOiAiODIwMDAwIiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJpdGVtQ291bnQiOiAiMSIsCiJtb2RlQ29kZSI6ICIwIiwKInJlbWFya3MiOiAiVGhpcyBpcyBhbm90aGVyIHJlbWFyayB0ZXN0LiIsCiJxckNvZGUiOiAiYXNkZmdoamtsIgp9LAoicGF5V2F5IjogW3sKInBheW1lbnRNb2RlIjogIjEwMSIsCiJwYXltZW50QW1vdW50IjogIjEwMDAwMDAiLAoib3JkZXJOdW1iZXIiOiAiYSIKfV0sCiJleHRlbmQiOiB7CiJyZWFzb24iOiAiIiwKInJlYXNvbkNvZGUiOiAiIgoKfSwKImltcG9ydFNlcnZpY2VzU2VsbGVyIjoge30KfQ==')
+
+
     d = ('{'
         '"data": {'
-        '"content": "'+base64_message+'",'
+        '"content": "'+testbase64message+'",'
             '"signature": "",'
             '"dataDescription": {'
                 '"codeType": "0",'
@@ -309,12 +313,21 @@ def upload_document(request):
             '"returnMessage": ""'
        ' }'
     '}')
+
+    print('----------------------------------')
     print(d)
-    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', data = d)
+    y = json.loads(d)
+    print('----------------------------------')
+    print(y)
+    print('----------------------------------')
+    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
     if finalupload.status_code == 200:
-        print(response.headers.get('Content-Type'))
-        data = response.json()
+        print(finalupload.headers.get('Content-Type'))
+        data = finalupload.json()
         return JsonResponse(data, status=200)
         
     else: 
+        data = {
+            'errorcode':''+str(finalupload.status_code)
+        }
         return JsonResponse(data, status=400)

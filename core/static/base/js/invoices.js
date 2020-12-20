@@ -91,7 +91,6 @@ $(document).ready(function(){
                 success: function(result, status, xhr) {
                     console.log("success");
                     console.log(result);
-                    console.log(result.Company.Details[0].Address)
                 },
                 error: function(xhr, textStatus, errorMessage) {
                     console.log(xhr)
