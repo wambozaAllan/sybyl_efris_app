@@ -159,14 +159,14 @@ def upload_document(request):
         taxDetailsFooter = ']'
     
         while counter < number_of_lines:
-            tax = str(float('{:.2f}'.format(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))))
-            total = str(float('{:.2f}'.format(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))))
+            tax = str(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))
+            total = str(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))
             customerNumber = partdata[counter]['CustomerNumber']
 
             goodsDetailsBody = ('{'
             '"item": "'+ partdata[counter]['Description'] +'",'
             '"itemCode": "'+ partdata[counter]['Number'] +'",'
-            '"qty": "'+ str(float("{:.2f}".format(partdata[counter]['Quantity']))) +'",'
+            '"qty": "'+ str(float(partdata[counter]['Quantity'])) +'",'
             '"unitOfMeasure": "'+ partdata[counter]['UnitOfMeasure'] +'",'
             '"unitPrice": "'+ partdata[counter]['UnitPrice'] +'",'
             '"total": "'+ partdata[counter]['Amount'] +'",'
