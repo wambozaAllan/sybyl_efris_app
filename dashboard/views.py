@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 
 import requests
+from datetime import datetime
+import base64
+import dateutil.parser
 
 def items(request):
     context = {
@@ -59,14 +62,259 @@ def load_company_info(request):
     else: 
         return JsonResponse(data, status=400)
 
-def load_document_good(request):
-    url = 'http://localhost:8280/services/GetCompanyInformation/getcompanyinfor'
-    response = requests.get(url, headers={'Accept':'application/json'})
+def upload_document(request):
+    ddd = request.GET['documentNumber']
+    print('documentnumber = ', ddd)
     data = {}
-    if response.status_code == 200:
+    now = datetime.now()
+    datetime_str = now.strftime("%d/%m/%Y %H:%M:%S")
+
+    company_infor_response = requests.get('http://localhost:8280/services/GetCompanyInformation/getcompanyinfor', headers={'Accept':'application/json'})
+
+    if company_infor_response.status_code == 200:
+        company_data = company_infor_response.json()
+
+        seller_details = ('"sellerDetails": {'
+        '"tin":"' + company_data['Company']['Details'][0]['VatRegistrationNumber'] + '",'
+        '"ninBrn":"' + company_data['Company']['Details'][0]['MinBRN'] + '",'
+        '"legalName":"' + company_data['Company']['Details'][0]['LegalName'] + '",'
+        '"businessName":"' + company_data['Company']['Details'][0]['BusinessName'] + '",'
+        '"address":"' + company_data['Company']['Details'][0]['Address'] + '",'
+        '"mobilePhone":"' + company_data['Company']['Details'][0]['MobileNumber'] + '",'
+        '"linePhone":"' + company_data['Company']['Details'][0]['PhoneNumber'] + '",'
+        '"emailAddress":"' + company_data['Company']['Details'][0]['Email'] + '",'
+        '"placeOfBusiness":"' + company_data['Company']['Details'][0]['PlaceOfBusiness'] + '",'
+        '"referenceNo":"' + company_data['Company']['Details'][0]['ReferenceNumber'] + '",'
+        '"branchId":"' + company_data['Company']['Details'][0]['BranchId'] + '"'
+        '}')
+
+        print('seller details= ', seller_details)
+
+    else:
+        print('error')
+
+    document_header_response = requests.get('http://localhost:8280/services/GetDocuments/getSpecificDocument?OrderNumber='+ddd, headers={'Accept':'application/json'})
+
+    if document_header_response.status_code == 200:
+        document_header_data = document_header_response.json()
+        partdata = document_header_data['Documents']['Document'][0]
+
+        document_date = dateutil.parser.parse(partdata['documentDate']) 
+        currency = "UGX" if not partdata['currencyCode'] else document_header_data['Documents']['Document'][0]['documentDate']
+        issue_date = document_date.strftime('%Y-%m-%d %H:%M:%S')
+        basic_information = ('"basicInformation": {'
+        '"invoiceNo": "'+ partdata['externalDocumentNumber'] +'",'
+        '"antifakeCode": "",'
+        '"deviceNo": "TCSff5ba51958634436",'
+        '"issuedDate": "'+ issue_date +'",'
+        '"operator": "'+ partdata['salesPersonCode'] +'",'
+        '"currency": "'+ currency +'",'
+        '"oriInvoiceId": "'+ partdata['externalDocumentNumber'] +'",'
+        '"invoiceType": "1",'
+        '"invoiceKind": "1",'
+        '"dataSource": "101",'
+        '"invoiceIndustryCode": "",'
+        '"isBatch": "0"'
+        '}')
+
+        print('basic information', basic_information)
+    else: 
+        print('error')
+
+    document_lines_response = requests.get('http://localhost:8280/services/GetOrderLines/getDocumentLines?DocumentNumber='+ddd, headers={'Accept':'application/json'})
+
+    if document_lines_response.status_code == 200:
+        document_lines_data = document_lines_response.json()
+        counter = 0
+        partdata =  document_lines_data['DocumentLines']['goodsDetails']
+        number_of_lines = len(partdata)
+        
+        goodsDetailsHeader = '"goodsDetails": ['
+        goodsDetailsFooter = ']'
+
+        taxDetailsHeader = '"taxDetails": ['
+        taxDetailsFooter = ']'
+    
+        while counter < number_of_lines:
+            tax = str(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))
+            customerNumber = partdata[counter]['CustomerNumber']
+
+            goodsDetailsBody = ('{'
+            '"item": "'+ partdata[counter]['Description'] +'",'
+            '"itemCode": "'+ partdata[counter]['Number'] +'",'
+            '"qty": "'+ partdata[counter]['Quantity'] +'",'
+            '"unitOfMeasure": "'+ partdata[counter]['UnitOfMeasure'] +'",'
+            '"unitPrice": "'+ partdata[counter]['UnitPrice'] +'",'
+            '"total": "'+ partdata[counter]['Amount'] +'",'
+            '"taxRate": "'+ partdata[counter]['VatPercentage'] +'",'
+            '"tax": "'+ tax +'",'
+            '"discountTotal": "'+ partdata[counter]['LineDiscountAmount'] +'",'
+            '"discountTaxRate": "'+ partdata[counter]['LineDiscountPercentage'] +'",'
+            '"orderNumber": "'+ partdata[counter]['DocumentNumber'] +'",'
+            '"discountFlag": "2",'
+            '"deemedFlag": "2",'
+            '"exciseFlag": "'+ partdata[counter]['ExciseFlag'] +'",'
+            '"categoryId": "",'
+            '"categoryName": "",'
+            '"goodsCategoryId": "'+ partdata[counter]['GoodsCategoryId'] +'",'
+            '"goodsCategoryName": "",'
+            '"exciseRate": "",'
+            '"exciseRule": "",'
+            '"exciseTax": "",'
+            '"pack": "",'
+            '"stick": "",'
+            '"exciseUnit": "",'
+            '"exciseCurrency": "",'
+            '"exciseRateName": ""'
+            '}')
+
+            if counter != number_of_lines - 1:
+                goodsDetailsBody = goodsDetailsBody + ','
+
+            goodsDetailsHeader = goodsDetailsHeader + goodsDetailsBody
+
+            taxDetailsBody = ('{'
+                '"taxCategory": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"netAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"taxRate": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"taxAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"grossAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"exciseUnit": "",'
+                '"exciseCurrency": "",'
+                '"taxRateName": ""'
+            '}')
+
+            if counter != number_of_lines - 1:
+                taxDetailsBody = taxDetailsBody + ','
+
+            taxDetailsHeader = taxDetailsHeader + taxDetailsBody
+            counter = counter + 1
+
+        goodsDetailsHeader = goodsDetailsHeader + goodsDetailsFooter
+        taxDetailsHeader = taxDetailsHeader + taxDetailsFooter
+
+        print('goods details', goodsDetailsHeader)
+        print('tax details', taxDetailsHeader)
+
+    else:
+        print('error')
+
+    buyer_infor_response = requests.get('http://localhost:8280/services/GetCustomerInformation/getCustomerInformation?CustomerNumber='+customerNumber, headers={'Accept': 'application/json'})
+    if buyer_infor_response.status_code == 200:
+        buyer_infor_data = buyer_infor_response.json()
+        if(bool(buyer_infor_data['Customer'])):
+            partdata = buyer_infor_data['Customer']['Details'][0]
+            buyer_details = ('"buyerDetails": {'
+                '"buyerTin": "'+ partdata['VatRegistrationNumber'] +'",'
+                '"buyerNinBrn": "'+ partdata['MinBrn'] +'",'
+                '"buyerPassportNum": "'+ partdata['PassportNumber'] +'",'
+                '"buyerLegalName": "'+ partdata['Name'] +'",'
+                '"buyerBusinessName": "'+ partdata['Name'] +'",'
+                '"buyerAddress": "'+ partdata['Address'] +'",'
+                '"buyerEmail": "'+ partdata['Email'] +'",'
+                '"buyerMobilePhone": "'+ partdata['MobileNumber'] +'",'
+                '"buyerLinePhone": "'+ partdata['PhoneNumber'] +'",'
+                '"buyerPlaceOfBusi": "'+ partdata['PlaceOfBusiness'] +'",'
+                '"buyerType": "1",'
+                '"buyerCitizenship": "'+ partdata['BuyerCitizenship'] +'",'
+                '"buyerSector": "",'
+                '"buyerReferenceNo": ""'
+                '}')
+        else:
+            buyer_details = '''"buyerDetails": {
+                "buyerTin": "",
+                "buyerNinBrn": "",
+                "buyerPassportNum": "",
+                "buyerLegalName": "",
+                "buyerBusinessName": "",
+                "buyerAddress": "",
+                "buyerEmail": "",
+                "buyerMobilePhone": "",
+                "buyerLinePhone": "",
+                "buyerPlaceOfBusi": "",
+                "buyerType": "1",
+                "buyerCitizenship": "",
+                "buyerSector": "",
+                "buyerReferenceNo": ""
+                }'''
+
+    buyer_extend_infor = '''"buyerExtend": {
+	"propertyType": "",
+	"district": "",
+	"municipalityCounty": "",
+	"divisionSubcounty": "",
+	"town": "",
+	"cellVillage": "",
+	"effectiveRegistrationDate": "",
+	"meterStatus": ""
+	}'''
+
+    upload_invoice_message =  ('{'+seller_details+','+ basic_information+','+buyer_details+','+ buyer_extend_infor+','
+    +goodsDetailsHeader+','+ taxDetailsHeader+','+
+    '"summary": {'
+    '"netAmount": "8379",'
+    '"taxAmount": "868",'
+    '"grossAmount": "9247",'
+    '"itemCount": "5",'
+    '"modeCode": "0",'
+    '"remarks": "",'
+    '"qrCode": ""'
+    '},'
+    '"payWay": [{'
+    '"paymentMode": "",'
+    '"paymentAmount": "",'
+    '"orderNumber": ""'
+    '}],'
+    '"extend": {'
+    '"reason": "",'
+    '"reasonCode": ""},'
+    '"importServicesSeller": {}'
+    '}')
+
+    message_bytes = upload_invoice_message.encode('ascii')
+    base64_message = base64.b64encode(message_bytes).decode('ascii')
+
+    d = ('{'
+        '"data": {'
+        '"content": "'+base64_message+'",'
+            '"signature": "",'
+            '"dataDescription": {'
+                '"codeType": "0",'
+                '"encryptCode": "1",'
+                '"zipCode": "0"'
+           ' }},'
+       ' "globalInfo": {'
+            '"appId": "",'
+            '"version": "1.1.20191201",'
+            '"dataExchangeId": "9230489223014123",'
+            '"interfaceCode": "T109",'
+            '"requestCode": "TP",'
+            '"requestTime": "'+datetime_str+'",'
+            '"responseCode": "TA",'
+            '"userName": "1000024517",'
+            '"deviceMAC": "005056B65332",'
+            '"deviceNo": "TCSff5ba51958634436",'
+            '"tin": "1000024517",'
+            '"brn": "",'
+            '"taxpayerID": "1000024517",'
+            '"longitude": "116.397128",'
+            '"latitude": "39.916527",'
+            '"extendField": {'
+                '"responseDateFormat": "dd/MM/yyyy",'
+                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
+            '}'
+        '},'
+        '"returnStateInfo": {'
+            '"returnCode": "",'
+            '"returnMessage": ""'
+       ' }'
+    '}')
+    print(d)
+    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', data = d)
+    if finalupload.status_code == 200:
         print(response.headers.get('Content-Type'))
         data = response.json()
         return JsonResponse(data, status=200)
-    
+        
     else: 
         return JsonResponse(data, status=400)
