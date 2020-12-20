@@ -16,7 +16,7 @@ def items(request):
 
 def invoices(request):
     context = {
-        'page': 'Invoices',
+        'page': 'Documents',
     }
     return render(request, 'dashboard/invoices.html', context)
 
@@ -57,6 +57,28 @@ def load_company_info(request):
     data = {}
     if response.status_code == 200:
         print(response.headers.get('Content-Type'))
+        data = response.json()
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
+def update_external_document_number(request):
+    external_doc_num_update = request.GET['external_doc_num_update']
+    doc_num = request.GET['doc_num']
+
+    url = 'http://localhost:8280/services/UpdateExternalDocumentNumber/updateExternalDocumentNumber'
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
+    req_message = (
+        '<_putupdateexternaldocumentnumber>'
+            '<ExternalDocumentNumber>'+ external_doc_num_update +'</ExternalDocumentNumber>'
+            '<DocumentNumber>'+ doc_num +'</DocumentNumber>'
+        '</_putupdateexternaldocumentnumber>')
+
+    response = requests.put(url, data=req_message, headers=request_headers)
+
+    data = {}
+    if response.status_code == 200:
         data = response.json()
         return JsonResponse(data, status=200)
     
@@ -137,13 +159,15 @@ def upload_document(request):
         taxDetailsFooter = ']'
     
         while counter < number_of_lines:
-            tax = str(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))
+            tax = str(float('{:.2f}'.format(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))))
+            total = str(float('{:.2f}'.format(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))))
+            tax_amount = str(float(partdata[counter]['VatProdPostingGroup'] ) - float(partdata[counter]['Amount'] ))
             customerNumber = partdata[counter]['CustomerNumber']
 
             goodsDetailsBody = ('{'
             '"item": "'+ partdata[counter]['Description'] +'",'
             '"itemCode": "'+ partdata[counter]['Number'] +'",'
-            '"qty": "'+ partdata[counter]['Quantity'] +'",'
+            '"qty": "'+ str(float("{:.2f}".format(partdata[counter]['Quantity']))) +'",'
             '"unitOfMeasure": "'+ partdata[counter]['UnitOfMeasure'] +'",'
             '"unitPrice": "'+ partdata[counter]['UnitPrice'] +'",'
             '"total": "'+ partdata[counter]['Amount'] +'",'
@@ -175,11 +199,11 @@ def upload_document(request):
             goodsDetailsHeader = goodsDetailsHeader + goodsDetailsBody
 
             taxDetailsBody = ('{'
-                '"taxCategory": "'+ partdata[counter]['DocumentNumber'] +'",'
-                '"netAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
-                '"taxRate": "'+ partdata[counter]['DocumentNumber'] +'",'
-                '"taxAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
-                '"grossAmount": "'+ partdata[counter]['DocumentNumber'] +'",'
+                '"taxCategory": "'+ partdata[counter]['VatProdPostingGroup'] +'",'
+                '"netAmount": "'+ partdata[counter]['Amount'] +'",'
+                '"taxRate": "'+ partdata[counter]['VatPercentage'] +'",'
+                '"taxAmount": "'+ tax +'",'
+                '"grossAmount": "'+ str(float(partdata[counter]['AmountIncludingVat'])) +'",'
                 '"exciseUnit": "",'
                 '"exciseCurrency": "",'
                 '"taxRateName": ""'
@@ -277,7 +301,6 @@ def upload_document(request):
 
     testbase64message = ('ewoJInNlbGxlckRldGFpbHMiOiB7CgkidGluIjogIjEwMDAwMjQ1MTciLAoJIm5pbkJybiI6ICIvUjEwMDAwMDAxOTMzNzMiLAoJImxlZ2FsTmFtZSI6ICJTWUJZTCBMSU1JVEVEIiwKCSJidXNpbmVzc05hbWUiOiAibGlzaSIsCgkiYWRkcmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkibW9iaWxlUGhvbmUiOiAiMDc3Mjc2NTc2NSIsCgkibGluZVBob25lIjogIisyNTYgNDEgNDMwNTQwMCIsCgkiZW1haWxBZGRyZXNzIjogImFsYmVydEBzeWJ5bC5jb20iLAoJInBsYWNlT2ZCdXNpbmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkicmVmZXJlbmNlTm8iOiAiIiwKCSJicmFuY2hJZCI6ICIiCgl9LAoJImJhc2ljSW5mb3JtYXRpb24iOiB7CgkiaW52b2ljZU5vIjogIiIsCgkiYW50aWZha2VDb2RlIjogIiIsCgkiZGV2aWNlTm8iOiAiVENTZmY1YmE1MTk1ODYzNDQzNiIsCgkiaXNzdWVkRGF0ZSI6ICIyMDIwLTEyLTIwIDE3OjEzOjEyIiwKCSJvcGVyYXRvciI6ICJBbGxhbiIsCgkiY3VycmVuY3kiOiAiVUdYIiwKCSJvcmlJbnZvaWNlSWQiOiAiIiwKCSJpbnZvaWNlVHlwZSI6ICIxIiwJCgkiaW52b2ljZUtpbmQiOiAiMSIsCgkiZGF0YVNvdXJjZSI6ICIxMDEiLAoJImludm9pY2VJbmR1c3RyeUNvZGUiOiAiMTAyIiwKCSJpc0JhdGNoIjogIjAiCgl9LAoJImJ1eWVyRGV0YWlscyI6IHsKCSJidXllclRpbiI6ICIxMDAwMjcyNDc4IiwKCSJidXllck5pbkJybiI6ICIiLAoJImJ1eWVyUGFzc3BvcnROdW0iOiAiIiwKCSJidXllckxlZ2FsTmFtZSI6ICJBbWVyaWNhbiBFbWJhc3N5IEthbXBhbGEiLAoJImJ1eWVyQnVzaW5lc3NOYW1lIjogIkFtZXJpY2FuIEVtYmFzc3kgS2FtcGFsYSIsCgkiYnV5ZXJBZGRyZXNzIjogIkdTTyA2My82NyBTcHJpbmcgUm9hZCBCdWdvbG9iaSIsCgkiYnV5ZXJFbWFpbCI6ICIxMjM0NTZAMTYzLmNvbSIsCgkiYnV5ZXJNb2JpbGVQaG9uZSI6ICIxNTUwMTIzNDU2NyIsCgkiYnV5ZXJMaW5lUGhvbmUiOiAiMDQxNCAzNDUgMTIzIiwKCSJidXllclBsYWNlT2ZCdXNpIjogImJlaWppbiIsCgkiYnV5ZXJUeXBlIjogIjEiLAoJImJ1eWVyQ2l0aXplbnNoaXAiOiAiMSIsCgkiYnV5ZXJTZWN0b3IiOiAiMSIsCgkiYnV5ZXJSZWZlcmVuY2VObyI6ICIwMDAwMDAwMDAwMSIKCX0sCgkiYnV5ZXJFeHRlbmQiOiB7CgkicHJvcGVydHlUeXBlIjogIiIsCgkiZGlzdHJpY3QiOiAiIiwKCSJtdW5pY2lwYWxpdHlDb3VudHkiOiAiIiwKCSJkaXZpc2lvblN1YmNvdW50eSI6ICIiLAoJInRvd24iOiAiIiwKCSJjZWxsVmlsbGFnZSI6ICIiLAoJImVmZmVjdGl2ZVJlZ2lzdHJhdGlvbkRhdGUiOiAiIiwKCSJtZXRlclN0YXR1cyI6ICIiCgl9LAoJImdvb2RzRGV0YWlscyI6IFt7CgkiaXRlbSI6ICJTdXBlciBTZXJ2ZXJzIiwKCSJpdGVtQ29kZSI6ICIzMzIyREQiLAoJInF0eSI6ICIxIiwKCSJ1bml0T2ZNZWFzdXJlIjogIkJveCIsCgkidW5pdFByaWNlIjogIjEwMDAwMDAuMDAiLAoJInRvdGFsIjogIjEwMDAwMDAuMDAiLAoJInRheFJhdGUiOiAiMC4xOCIsCgkidGF4IjogIjEyLjg4IiwKCSJkaXNjb3VudFRvdGFsIjogIjE4LjAwIiwKCSJkaXNjb3VudFRheFJhdGUiOiAiMC4xOCIsCgkib3JkZXJOdW1iZXIiOiAiMCIsCgkiZGlzY291bnRGbGFnIjogIjEiLAoJImRlZW1lZEZsYWciOiAiMiIsCgkiZXhjaXNlRmxhZyI6ICIyIiwKCSJjYXRlZ29yeUlkIjogIiIsCgkiY2F0ZWdvcnlOYW1lIjogIiIsCgkiZ29vZHNDYXRlZ29yeUlkIjogIjQzMjExNTAxIiwKCSJnb29kc0NhdGVnb3J5TmFtZSI6ICIiLAoJImV4Y2lzZVJhdGUiOiAiIiwKCSJleGNpc2VSdWxlIjogIiIsCgkiZXhjaXNlVGF4IjogIiIsCgkicGFjayI6ICIiLAoJInN0aWNrIjogIiIsCgkiZXhjaXNlVW5pdCI6ICIiLAoJImV4Y2lzZUN1cnJlbmN5IjogIiIsCgkiZXhjaXNlUmF0ZU5hbWUiOiAiIgoJfV0sCiJ0YXhEZXRhaWxzIjogW3sKInRheENhdGVnb3J5IjogIlN0YW5kYXJkIiwKIm5ldEFtb3VudCI6ICI4MjAwMDAiLAoidGF4UmF0ZSI6ICIwLjE4IiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJleGNpc2VVbml0IjogIiIsCiJleGNpc2VDdXJyZW5jeSI6ICJVR1giLAoidGF4UmF0ZU5hbWUiOiAiMTIzIgp9XSwKInN1bW1hcnkiOiB7CiJuZXRBbW91bnQiOiAiODIwMDAwIiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJpdGVtQ291bnQiOiAiMSIsCiJtb2RlQ29kZSI6ICIwIiwKInJlbWFya3MiOiAiVGhpcyBpcyBhbm90aGVyIHJlbWFyayB0ZXN0LiIsCiJxckNvZGUiOiAiYXNkZmdoamtsIgp9LAoicGF5V2F5IjogW3sKInBheW1lbnRNb2RlIjogIjEwMSIsCiJwYXltZW50QW1vdW50IjogIjEwMDAwMDAiLAoib3JkZXJOdW1iZXIiOiAiYSIKfV0sCiJleHRlbmQiOiB7CiJyZWFzb24iOiAiIiwKInJlYXNvbkNvZGUiOiAiIgoKfSwKImltcG9ydFNlcnZpY2VzU2VsbGVyIjoge30KfQ==')
 
-
     d = ('{'
         '"data": {'
         '"content": "'+testbase64message+'",'
@@ -314,17 +337,43 @@ def upload_document(request):
        ' }'
     '}')
 
-    print('----------------------------------')
-    print(d)
     y = json.loads(d)
-    print('----------------------------------')
-    print(y)
-    print('----------------------------------')
+
     finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
+
     if finalupload.status_code == 200:
-        print(finalupload.headers.get('Content-Type'))
         data = finalupload.json()
-        return JsonResponse(data, status=200)
+        return_message = data['returnStateInfo']['returnMessage']
+
+        if return_message == 'SUCCESS':
+            content_base64 = data['data']['content']
+            content_decoded = base64.b64decode(content).decode('ascii')
+
+            # convert to json
+            content_json = json.loads(content_decoded)
+
+            # get the invoice number
+            invoice_number = content_json['basicInformation']['invoiceNo']
+            print('invoice number = ', invoice_number)
+
+            #update external document number
+            uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
+            upex = requests.get('uri')
+            if upex.status_code == 200:
+                data = {
+                    'externalDocNumber': ''+invoice_number,
+                    'docNumber': ''+dd,
+                    'message': 'external doc number updated in database'
+                }
+                return JsonResponse(data, status=200)
+            else:
+                data = {
+                    'externalDocNumber': ''+invoice_number,
+                    'docNumber': ''+dd,
+                    'message': 'failed to update external document number in database'
+                }
+        else:
+            return JsonResponse({'error', 'failed to upload invoice'}, status=400)
         
     else: 
         data = {

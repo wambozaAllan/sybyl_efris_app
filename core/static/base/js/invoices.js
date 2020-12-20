@@ -2,24 +2,6 @@ $(document).ready(function(){
     var orderTableBody = $("#order-table-body");
     var uploadInvoiceBtn = $("#upload-invoices");
 
-    function loadCompInfo() {
-        $.ajax({
-            url: "http://localhost:8000/dashboard/load_company_info",
-            beforeSend: function(request) {
-                console.log("before send");
-            },
-            success: function(result, status, xhr) {
-                console.log("success");
-                console.log(result);
-                console.log(result.Company.Details[0].Address)
-            },
-            error: function(xhr, textStatus, errorMessage) {
-                console.log(xhr)
-                console.log("error, "+ errorMessage);
-            },
-          });
-    }
-
     function loadInvoices() {
         $.ajax({
             url: "http://localhost:8000/dashboard/load_invoices",
@@ -28,8 +10,7 @@ $(document).ready(function(){
             },
             success: function(result, status, xhr) {
                 console.log("success");
-                console.log(result);
-                console.log(result.Orders.Order.length)
+                $('#docs-loader').hide();
 
                 for(a = 0; a < result.Orders.Order.length; a++){
                     let statusValue;
@@ -71,7 +52,6 @@ $(document).ready(function(){
           });
     }
 
-    loadCompInfo();
     loadInvoices();
 
     uploadInvoiceBtn.click(function(){
@@ -91,10 +71,12 @@ $(document).ready(function(){
                 success: function(result, status, xhr) {
                     console.log("success");
                     console.log(result);
+                    alert(result)
                 },
                 error: function(xhr, textStatus, errorMessage) {
                     console.log(xhr)
                     console.log("error, "+ errorMessage);
+                    alert('Error occurred')
                 },
               });
         }

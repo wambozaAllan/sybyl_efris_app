@@ -50,12 +50,12 @@
                             </div>
                         </div>
                         <div>
-                            <button type="button" class="btn btn-primary" id="upload-invoices">Upload
+                            <button type="button" class="btn btn-primary" id="upload-invoices">Generate E-
                                 Invoice(s)</button>
                         </div>
 
                         <div class="table-responsive pt-3">
-                            <table class="table table-bordered" id="invoices-table">
+                            <table class="table table-bordered dataTable" id="invoices-table">
                                 <thead>
                                     <tr>
                                         <th class="text-center">
@@ -65,7 +65,7 @@
                                             #
                                         </th>
                                         <th>
-                                            Invoice Number
+                                            Document Number
                                         </th>
                                         <th>
                                             Issue Date
@@ -74,7 +74,7 @@
                                             Sales Person
                                         </th>
                                         <th>
-                                            Invoice Type
+                                            Document Type
                                         </th>
                                         <th>
                                             Status
@@ -82,8 +82,15 @@
                                     </tr>
                                 </thead>
                                 <tbody id="order-table-body">
+
                                 </tbody>
+                                
                             </table>
+                            <div id="docs-loader" class="dot-opacity-loader">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                              </div>
                         </div>
                     </div>
                 </div>
@@ -100,4 +107,5 @@
 {% block scripts %}
 <script src="{% static 'base/js/invoices.js' %}"></script>
 <script src="{% static 'base/js/base.js' %}"></script>
+<script src="{% static 'vendor/js/sweetalert.min.js' %}"></script>
 {% endblock %}
