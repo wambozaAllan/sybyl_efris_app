@@ -342,33 +342,33 @@ def upload_document(request):
         data = finalupload.json()
         return_message = data['returnStateInfo']['returnMessage']
 
-        if return_message == 'SUCCESS':
-            content_base64 = data['data']['content']
-            content_decoded = base64.b64decode(content).decode('ascii')
+        # if return_message == 'SUCCESS':
+        #     content_base64 = data['data']['content']
+        #     content_decoded = base64.b64decode(content).decode('ascii')
 
-            # convert to json
-            content_json = json.loads(content_decoded)
+        #     # convert to json
+        #     content_json = json.loads(content_decoded)
 
-            # get the invoice number
-            invoice_number = content_json['basicInformation']['invoiceNo']
-            print('invoice number = ', invoice_number)
+        #     # get the invoice number
+        #     invoice_number = content_json['basicInformation']['invoiceNo']
+        #     print('invoice number = ', invoice_number)
 
-            #update external document number
-            uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
-            upex = requests.get('uri')
-            if upex.status_code == 200:
-                data = {
-                    'externalDocNumber': ''+invoice_number,
-                    'docNumber': ''+dd,
-                    'message': 'external doc number updated in database'
-                }
-                return JsonResponse(data, status=200)
-            else:
-                data = {
-                    'externalDocNumber': ''+invoice_number,
-                    'docNumber': ''+dd,
-                    'message': 'failed to update external document number in database'
-                }
+        #     #update external document number
+        #     uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
+        #     upex = requests.get('uri')
+        #     if upex.status_code == 200:
+        #         data = {
+        #             'externalDocNumber': ''+invoice_number,
+        #             'docNumber': ''+dd,
+        #             'message': 'external doc number updated in database'
+        #         }
+        #         return JsonResponse(data, status=200)
+        #     else:
+        #         data = {
+        #             'externalDocNumber': ''+invoice_number,
+        #             'docNumber': ''+dd,
+        #             'message': 'failed to update external document number in database'
+        #         }
         else:
             return JsonResponse({'error', 'failed to upload invoice'}, status=400)
         
