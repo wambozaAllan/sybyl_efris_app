@@ -87,7 +87,6 @@ def update_external_document_number(request):
 
 def upload_document(request):
     ddd = request.GET['documentNumber']
-    print('documentnumber = ', ddd)
     data = {}
     now = datetime.now()
     datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -110,8 +109,6 @@ def upload_document(request):
         '"referenceNo":"' + company_data['Company']['Details'][0]['ReferenceNumber'] + '",'
         '"branchId":"' + company_data['Company']['Details'][0]['BranchId'] + '"'
         '}')
-
-        print('seller details= ', seller_details)
 
     else:
         print('error')
@@ -341,6 +338,7 @@ def upload_document(request):
     finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
 
     if finalupload.status_code == 200:
+        print('upload done')
         data = finalupload.json()
         return_message = data['returnStateInfo']['returnMessage']
 
