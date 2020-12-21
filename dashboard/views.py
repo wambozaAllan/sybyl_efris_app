@@ -369,8 +369,8 @@ def upload_document(request):
         #             'docNumber': ''+dd,
         #             'message': 'failed to update external document number in database'
         #         }
-        else:
-            return JsonResponse({'error', 'failed to upload invoice'}, status=400)
+        # else:
+        #     return JsonResponse({'error', 'failed to upload invoice'}, status=400)
         
     else: 
         data = {
