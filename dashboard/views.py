@@ -133,7 +133,7 @@ def upload_document(request):
         '"invoiceType": "1",'
         '"invoiceKind": "1",'
         '"dataSource": "101",'
-        '"invoiceIndustryCode": "",'
+        '"invoiceIndustryCode": "'+ partdata['OrderClass'] +'",'
         '"isBatch": "0"'
         '}')
 
@@ -148,7 +148,10 @@ def upload_document(request):
         counter = 0
         partdata =  document_lines_data['DocumentLines']['goodsDetails']
         number_of_lines = len(partdata)
-        
+        number_of_items = 0   
+        total_amount_vat = 0.0
+        total_amount = 0.0     
+
         goodsDetailsHeader = '"goodsDetails": ['
         goodsDetailsFooter = ']'
 
@@ -160,21 +163,44 @@ def upload_document(request):
             total = str(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))
             customerNumber = partdata[counter]['CustomerNumber']
             item = partdata[counter]['Description']
+            tax_rate = str(float(partdata[counter]['VatPercentage']) / 100)
+            number_of_items = number_of_items + int(float(partdata[counter]['Quantity']))
+
+            # total amount including VAT
+            total_amount_vat = total_amount_vat + float(partdata[counter]['AmountIncludingVat'])
+
+            total_amount = total_amount + float(partdata[counter]['Amount'])
+
+            # discount totl
+            discount_total = ''
+            discount_flag = partdata[counter]['Discount']
+
+            if discount_flag == '0' or discount_flag == '2':
+                discount_total = ''
+            else:
+                discount_total = '-'+partdata[counter]['LineDiscountPercentage']
+            #########################################################################
+
+            unit_of_measure = partdata[counter]['UnitOfMeasure']
+            if unit_of_measure == 'UNIT':
+                unit_of_measure = 'UN'
+            else:
+                unit_of_measure = partdata[counter]['UnitOfMeasure']
 
             goodsDetailsBody = ('{'
-            '"item": "'+ item[0:99] +'",'
+            '"item": "'+ item +'",'
             '"itemCode": "'+ partdata[counter]['Number'] +'",'
             '"qty": "'+ str(float(partdata[counter]['Quantity'])) +'",'
-            '"unitOfMeasure": "'+ partdata[counter]['UnitOfMeasure'] +'",'
-            '"unitPrice": "'+ partdata[counter]['UnitPrice'] +'",'
-            '"total": "'+ partdata[counter]['Amount'] +'",'
-            '"taxRate": "'+ partdata[counter]['VatPercentage'] +'",'
+            '"unitOfMeasure": "'+ unit_of_measure +'",'
+            '"unitPrice": "'+ str(float(partdata[counter]['UnitPrice'])) +'",'
+            '"total": "'+ str(float(partdata[counter]['Amount'])) +'",'
+            '"taxRate": "'+ tax_rate +'",'
             '"tax": "'+ tax +'",'
-            '"discountTotal": "'+ partdata[counter]['LineDiscountAmount'] +'",'
-            '"discountTaxRate": "'+ partdata[counter]['LineDiscountPercentage'] +'",'
-            '"orderNumber": "'+ partdata[counter]['DocumentNumber'] +'",'
-            '"discountFlag": "2",'
-            '"deemedFlag": "2",'
+            '"discountTotal": "'+ discount_total +'",'
+            '"discountTaxRate": "'+ str(float(partdata[counter]['LineDiscountPercentage'])) +'",'
+            '"orderNumber": "5",'
+            '"discountFlag": "'+ partdata[counter]['Discount']+ '",'
+            '"deemedFlag": "'+ partdata[counter]['DeemedFlag'] +'",'
             '"exciseFlag": "'+ partdata[counter]['ExciseFlag'] +'",'
             '"categoryId": "",'
             '"categoryName": "",'
@@ -197,8 +223,8 @@ def upload_document(request):
 
             taxDetailsBody = ('{'
                 '"taxCategory": "'+ partdata[counter]['VatProdPostingGroup'] +'",'
-                '"netAmount": "'+ partdata[counter]['Amount'] +'",'
-                '"taxRate": "'+ partdata[counter]['VatPercentage'] +'",'
+                '"netAmount": "'+ str(float(partdata[counter]['Amount'])) +'",'
+                '"taxRate": "'+ tax_rate +'",'
                 '"taxAmount": "'+ tax +'",'
                 '"grossAmount": "'+ str(float(partdata[counter]['AmountIncludingVat'])) +'",'
                 '"exciseUnit": "",'
@@ -274,10 +300,10 @@ def upload_document(request):
     upload_invoice_message =  ('{'+seller_details+','+ basic_information+','+buyer_details+','+ buyer_extend_infor+','
     +goodsDetailsHeader+','+ taxDetailsHeader+','+
     '"summary": {'
-    '"netAmount": "8379",'
-    '"taxAmount": "868",'
-    '"grossAmount": "9247",'
-    '"itemCount": "5",'
+    '"netAmount": "'+ str(total_amount) +'",'
+    '"taxAmount": "'+ str(total_amount_vat - total_amount) +'",'
+    '"grossAmount": "'+ str(total_amount_vat) +'",'
+    '"itemCount": "'+ str(number_of_items) +'",'
     '"modeCode": "0",'
     '"remarks": "",'
     '"qrCode": ""'
@@ -285,7 +311,7 @@ def upload_document(request):
     '"payWay": [{'
     '"paymentMode": "",'
     '"paymentAmount": "",'
-    '"orderNumber": ""'
+    '"orderNumber": "a"'
     '}],'
     '"extend": {'
     '"reason": "",'
@@ -331,6 +357,9 @@ def upload_document(request):
             '"returnMessage": ""'
        ' }'
     '}')
+    print('--------------------------------------------------------------------')
+    print(d)
+    print('--------------------------------------------------------------------')
 
     y = json.loads(d)
 
@@ -341,16 +370,16 @@ def upload_document(request):
         data = finalupload.json()
         return_message = data['returnStateInfo']['returnMessage']
 
-        if return_message == 'SUCCESS':
-            content_base64 = data['data']['content']
-            content_decoded = base64.b64decode(content).decode('ascii')
+        # if return_message == 'SUCCESS':
+        #     content_base64 = data['data']['content']
+        #     content_decoded = base64.b64decode(content).decode('ascii')
 
-        #     # convert to json
-            content_json = json.loads(content_decoded)
+        # #     # convert to json
+        #     content_json = json.loads(content_decoded)
 
-        #     # get the invoice number
-            invoice_number = content_json['basicInformation']['invoiceNo']
-            print('invoice number = ', invoice_number)
+        # #     # get the invoice number
+        #     invoice_number = content_json['basicInformation']['invoiceNo']
+        #     print('invoice number = ', invoice_number)
 
         #     #update external document number
         #     uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
