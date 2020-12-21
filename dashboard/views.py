@@ -120,7 +120,7 @@ def upload_document(request):
         partdata = document_header_data['Documents']['Document'][0]
 
         document_date = dateutil.parser.parse(partdata['documentDate']) 
-        currency = "UGX" if not partdata['currencyCode'] else document_header_data['Documents']['Document'][0]['documentDate']
+        currency = "UGX" if not partdata['currencyCode'] else partdata['currencyCode']
         issue_date = document_date.strftime('%Y-%m-%d %H:%M:%S')
         basic_information = ('"basicInformation": {'
         '"invoiceNo": "'+ partdata['externalDocumentNumber'] +'",'
@@ -159,9 +159,10 @@ def upload_document(request):
             tax = str(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))
             total = str(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))
             customerNumber = partdata[counter]['CustomerNumber']
+            item = partdata[counter]['Description']
 
             goodsDetailsBody = ('{'
-            '"item": "'+ partdata[counter]['Description'] +'",'
+            '"item": "'+ item[0:99] +'",'
             '"itemCode": "'+ partdata[counter]['Number'] +'",'
             '"qty": "'+ str(float(partdata[counter]['Quantity'])) +'",'
             '"unitOfMeasure": "'+ partdata[counter]['UnitOfMeasure'] +'",'
@@ -295,11 +296,9 @@ def upload_document(request):
     message_bytes = upload_invoice_message.encode('ascii')
     base64_message = base64.b64encode(message_bytes).decode('ascii')
 
-    testbase64message = ('ewoJInNlbGxlckRldGFpbHMiOiB7CgkidGluIjogIjEwMDAwMjQ1MTciLAoJIm5pbkJybiI6ICIvUjEwMDAwMDAxOTMzNzMiLAoJImxlZ2FsTmFtZSI6ICJTWUJZTCBMSU1JVEVEIiwKCSJidXNpbmVzc05hbWUiOiAibGlzaSIsCgkiYWRkcmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkibW9iaWxlUGhvbmUiOiAiMDc3Mjc2NTc2NSIsCgkibGluZVBob25lIjogIisyNTYgNDEgNDMwNTQwMCIsCgkiZW1haWxBZGRyZXNzIjogImFsYmVydEBzeWJ5bC5jb20iLAoJInBsYWNlT2ZCdXNpbmVzcyI6ICJQbG90IDFBIEthZnUgUm9hZCIsCgkicmVmZXJlbmNlTm8iOiAiIiwKCSJicmFuY2hJZCI6ICIiCgl9LAoJImJhc2ljSW5mb3JtYXRpb24iOiB7CgkiaW52b2ljZU5vIjogIiIsCgkiYW50aWZha2VDb2RlIjogIiIsCgkiZGV2aWNlTm8iOiAiVENTZmY1YmE1MTk1ODYzNDQzNiIsCgkiaXNzdWVkRGF0ZSI6ICIyMDIwLTEyLTIwIDE3OjEzOjEyIiwKCSJvcGVyYXRvciI6ICJBbGxhbiIsCgkiY3VycmVuY3kiOiAiVUdYIiwKCSJvcmlJbnZvaWNlSWQiOiAiIiwKCSJpbnZvaWNlVHlwZSI6ICIxIiwJCgkiaW52b2ljZUtpbmQiOiAiMSIsCgkiZGF0YVNvdXJjZSI6ICIxMDEiLAoJImludm9pY2VJbmR1c3RyeUNvZGUiOiAiMTAyIiwKCSJpc0JhdGNoIjogIjAiCgl9LAoJImJ1eWVyRGV0YWlscyI6IHsKCSJidXllclRpbiI6ICIxMDAwMjcyNDc4IiwKCSJidXllck5pbkJybiI6ICIiLAoJImJ1eWVyUGFzc3BvcnROdW0iOiAiIiwKCSJidXllckxlZ2FsTmFtZSI6ICJBbWVyaWNhbiBFbWJhc3N5IEthbXBhbGEiLAoJImJ1eWVyQnVzaW5lc3NOYW1lIjogIkFtZXJpY2FuIEVtYmFzc3kgS2FtcGFsYSIsCgkiYnV5ZXJBZGRyZXNzIjogIkdTTyA2My82NyBTcHJpbmcgUm9hZCBCdWdvbG9iaSIsCgkiYnV5ZXJFbWFpbCI6ICIxMjM0NTZAMTYzLmNvbSIsCgkiYnV5ZXJNb2JpbGVQaG9uZSI6ICIxNTUwMTIzNDU2NyIsCgkiYnV5ZXJMaW5lUGhvbmUiOiAiMDQxNCAzNDUgMTIzIiwKCSJidXllclBsYWNlT2ZCdXNpIjogImJlaWppbiIsCgkiYnV5ZXJUeXBlIjogIjEiLAoJImJ1eWVyQ2l0aXplbnNoaXAiOiAiMSIsCgkiYnV5ZXJTZWN0b3IiOiAiMSIsCgkiYnV5ZXJSZWZlcmVuY2VObyI6ICIwMDAwMDAwMDAwMSIKCX0sCgkiYnV5ZXJFeHRlbmQiOiB7CgkicHJvcGVydHlUeXBlIjogIiIsCgkiZGlzdHJpY3QiOiAiIiwKCSJtdW5pY2lwYWxpdHlDb3VudHkiOiAiIiwKCSJkaXZpc2lvblN1YmNvdW50eSI6ICIiLAoJInRvd24iOiAiIiwKCSJjZWxsVmlsbGFnZSI6ICIiLAoJImVmZmVjdGl2ZVJlZ2lzdHJhdGlvbkRhdGUiOiAiIiwKCSJtZXRlclN0YXR1cyI6ICIiCgl9LAoJImdvb2RzRGV0YWlscyI6IFt7CgkiaXRlbSI6ICJTdXBlciBTZXJ2ZXJzIiwKCSJpdGVtQ29kZSI6ICIzMzIyREQiLAoJInF0eSI6ICIxIiwKCSJ1bml0T2ZNZWFzdXJlIjogIkJveCIsCgkidW5pdFByaWNlIjogIjEwMDAwMDAuMDAiLAoJInRvdGFsIjogIjEwMDAwMDAuMDAiLAoJInRheFJhdGUiOiAiMC4xOCIsCgkidGF4IjogIjEyLjg4IiwKCSJkaXNjb3VudFRvdGFsIjogIjE4LjAwIiwKCSJkaXNjb3VudFRheFJhdGUiOiAiMC4xOCIsCgkib3JkZXJOdW1iZXIiOiAiMCIsCgkiZGlzY291bnRGbGFnIjogIjEiLAoJImRlZW1lZEZsYWciOiAiMiIsCgkiZXhjaXNlRmxhZyI6ICIyIiwKCSJjYXRlZ29yeUlkIjogIiIsCgkiY2F0ZWdvcnlOYW1lIjogIiIsCgkiZ29vZHNDYXRlZ29yeUlkIjogIjQzMjExNTAxIiwKCSJnb29kc0NhdGVnb3J5TmFtZSI6ICIiLAoJImV4Y2lzZVJhdGUiOiAiIiwKCSJleGNpc2VSdWxlIjogIiIsCgkiZXhjaXNlVGF4IjogIiIsCgkicGFjayI6ICIiLAoJInN0aWNrIjogIiIsCgkiZXhjaXNlVW5pdCI6ICIiLAoJImV4Y2lzZUN1cnJlbmN5IjogIiIsCgkiZXhjaXNlUmF0ZU5hbWUiOiAiIgoJfV0sCiJ0YXhEZXRhaWxzIjogW3sKInRheENhdGVnb3J5IjogIlN0YW5kYXJkIiwKIm5ldEFtb3VudCI6ICI4MjAwMDAiLAoidGF4UmF0ZSI6ICIwLjE4IiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJleGNpc2VVbml0IjogIiIsCiJleGNpc2VDdXJyZW5jeSI6ICJVR1giLAoidGF4UmF0ZU5hbWUiOiAiMTIzIgp9XSwKInN1bW1hcnkiOiB7CiJuZXRBbW91bnQiOiAiODIwMDAwIiwKInRheEFtb3VudCI6ICIxODAwMDAiLAoiZ3Jvc3NBbW91bnQiOiAiMTAwMDAwMCIsCiJpdGVtQ291bnQiOiAiMSIsCiJtb2RlQ29kZSI6ICIwIiwKInJlbWFya3MiOiAiVGhpcyBpcyBhbm90aGVyIHJlbWFyayB0ZXN0LiIsCiJxckNvZGUiOiAiYXNkZmdoamtsIgp9LAoicGF5V2F5IjogW3sKInBheW1lbnRNb2RlIjogIjEwMSIsCiJwYXltZW50QW1vdW50IjogIjEwMDAwMDAiLAoib3JkZXJOdW1iZXIiOiAiYSIKfV0sCiJleHRlbmQiOiB7CiJyZWFzb24iOiAiIiwKInJlYXNvbkNvZGUiOiAiIgoKfSwKImltcG9ydFNlcnZpY2VzU2VsbGVyIjoge30KfQ==')
-
     d = ('{'
         '"data": {'
-        '"content": "'+testbase64message+'",'
+        '"content": "'+base64_message+'",'
             '"signature": "",'
             '"dataDescription": {'
                 '"codeType": "0",'
@@ -342,16 +341,16 @@ def upload_document(request):
         data = finalupload.json()
         return_message = data['returnStateInfo']['returnMessage']
 
-        # if return_message == 'SUCCESS':
-        #     content_base64 = data['data']['content']
-        #     content_decoded = base64.b64decode(content).decode('ascii')
+        if return_message == 'SUCCESS':
+            content_base64 = data['data']['content']
+            content_decoded = base64.b64decode(content).decode('ascii')
 
         #     # convert to json
-        #     content_json = json.loads(content_decoded)
+            content_json = json.loads(content_decoded)
 
         #     # get the invoice number
-        #     invoice_number = content_json['basicInformation']['invoiceNo']
-        #     print('invoice number = ', invoice_number)
+            invoice_number = content_json['basicInformation']['invoiceNo']
+            print('invoice number = ', invoice_number)
 
         #     #update external document number
         #     uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
@@ -363,14 +362,14 @@ def upload_document(request):
         #             'message': 'external doc number updated in database'
         #         }
         #         return JsonResponse(data, status=200)
-        #     else:
+           # else:
         #         data = {
         #             'externalDocNumber': ''+invoice_number,
         #             'docNumber': ''+dd,
         #             'message': 'failed to update external document number in database'
         #         }
         # else:
-        #     return JsonResponse({'error', 'failed to upload invoice'}, status=400)
+        return JsonResponse(data, status=200)
         
     else: 
         data = {

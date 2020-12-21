@@ -71,7 +71,7 @@ $(document).ready(function(){
                 success: function(result, status, xhr) {
                     console.log("success");
                     console.log(result);
-                    alert(result)
+                    alert(result.returnStateInfo.returnMessage)
                 },
                 error: function(xhr, textStatus, errorMessage) {
                     console.log(xhr)
