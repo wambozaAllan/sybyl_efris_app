@@ -33,17 +33,9 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row" style="margin-bottom: 2%;">
-                            <div class="col-xl-4">
-                                <input type="text" class="form-control" id="invoice-number"
-                                    placeholder="Invoice Number" />
-                            </div>
-                            <div class="col-xl-4">
-                                <select class="form-control" id="invoice-status">
-                                    <option>-- Select Invoice Status --</option>
-                                    <option>Uploaded</option>
-                                    <option>Not Uploaded</option>
-                                    <option>Failed Upload</option>
-                                </select>
+                            <div class="col-xl-6">
+                                <input type="text" class="form-control" id="document-number"
+                                    placeholder="Document Number" />
                             </div>
                             <div class="col-xl-4">
                                 <button type="button" class="btn btn-primary" id="search-invoices">Search</button>
@@ -52,6 +44,7 @@
                         <div>
                             <button type="button" class="btn btn-primary" id="upload-invoices">Generate E-
                                 Invoice(s)</button>
+                                <span id="e-loader" style="margin-left: 10px; width: 20px; height: 20px; display: none;" class="circle-loader"></span>
                         </div>
 
                         <div class="table-responsive pt-3">
@@ -105,7 +98,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'base/js/invoices.js' %}"></script>
 <script src="{% static 'base/js/base.js' %}"></script>
 <script src="{% static 'vendor/js/sweetalert.min.js' %}"></script>
+<script src="{% static 'base/js/invoices.js' %}"></script>
 {% endblock %}

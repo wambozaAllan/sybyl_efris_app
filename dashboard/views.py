@@ -7,6 +7,9 @@ from datetime import datetime
 import base64
 import dateutil.parser
 import json
+from decimal import *
+
+TWO_DECIMAL_PLACES = Decimal('0.00')
 
 def items(request):
     context = {
@@ -149,8 +152,9 @@ def upload_document(request):
         partdata =  document_lines_data['DocumentLines']['goodsDetails']
         number_of_lines = len(partdata)
         number_of_items = 0   
-        total_amount_vat = 0.0
-        total_amount = 0.0     
+        total_amount_vat = Decimal(0.0)
+        total_amount = Decimal(0.0)   
+        total_net = Decimal(0.0)      
 
         goodsDetailsHeader = '"goodsDetails": ['
         goodsDetailsFooter = ']'
@@ -159,17 +163,17 @@ def upload_document(request):
         taxDetailsFooter = ']'
     
         while counter < number_of_lines:
-            tax = str(float(partdata[counter]['AmountIncludingVat']) - float(partdata[counter]['Amount']))
-            total = str(float(partdata[counter]['Amount']) * float(partdata[counter]['Quantity']))
+            tax = str((Decimal(partdata[counter]['AmountIncludingVat']) - Decimal(partdata[counter]['Amount'])).quantize(TWO_DECIMAL_PLACES))
+            total = str((Decimal(partdata[counter]['Amount']) * Decimal(partdata[counter]['Quantity'])).quantize(TWO_DECIMAL_PLACES))
             customerNumber = partdata[counter]['CustomerNumber']
             item = partdata[counter]['Description']
-            tax_rate = str(float(partdata[counter]['VatPercentage']) / 100)
-            number_of_items = number_of_items + int(float(partdata[counter]['Quantity']))
+            tax_rate = str((Decimal(partdata[counter]['VatPercentage']) / 100).quantize(TWO_DECIMAL_PLACES))
+            number_of_items = number_of_items + int(Decimal(partdata[counter]['Quantity']))
 
             # total amount including VAT
-            total_amount_vat = total_amount_vat + float(partdata[counter]['AmountIncludingVat'])
+            total_amount_vat = (total_amount_vat + Decimal(tax) + (Decimal(partdata[counter]['Amount']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
 
-            total_amount = total_amount + float(partdata[counter]['Amount'])
+            total_amount = (total_amount + (Decimal(partdata[counter]['Amount']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
 
             # discount totl
             discount_total = ''
@@ -190,15 +194,15 @@ def upload_document(request):
             goodsDetailsBody = ('{'
             '"item": "'+ item +'",'
             '"itemCode": "'+ partdata[counter]['Number'] +'",'
-            '"qty": "'+ str(float(partdata[counter]['Quantity'])) +'",'
+            '"qty": "'+ str(int(Decimal(partdata[counter]['Quantity']))) +'",'
             '"unitOfMeasure": "'+ unit_of_measure +'",'
-            '"unitPrice": "'+ str(float(partdata[counter]['UnitPrice'])) +'",'
-            '"total": "'+ str(float(partdata[counter]['Amount'])) +'",'
+            '"unitPrice": "'+ str(Decimal(partdata[counter]['UnitPrice']).quantize(TWO_DECIMAL_PLACES)) +'",'
+            '"total": "'+ str(Decimal(partdata[counter]['Amount']).quantize(TWO_DECIMAL_PLACES)) +'",'
             '"taxRate": "'+ tax_rate +'",'
             '"tax": "'+ tax +'",'
             '"discountTotal": "'+ discount_total +'",'
-            '"discountTaxRate": "'+ str(float(partdata[counter]['LineDiscountPercentage'])) +'",'
-            '"orderNumber": "5",'
+            '"discountTaxRate": "'+ str(Decimal(partdata[counter]['LineDiscountPercentage']).quantize(TWO_DECIMAL_PLACES)) +'",'
+            '"orderNumber": "'+ str(counter) +'",'
             '"discountFlag": "'+ partdata[counter]['Discount']+ '",'
             '"deemedFlag": "'+ partdata[counter]['DeemedFlag'] +'",'
             '"exciseFlag": "'+ partdata[counter]['ExciseFlag'] +'",'
@@ -223,13 +227,13 @@ def upload_document(request):
 
             taxDetailsBody = ('{'
                 '"taxCategory": "'+ partdata[counter]['VatProdPostingGroup'] +'",'
-                '"netAmount": "'+ str(float(partdata[counter]['Amount'])) +'",'
+                '"netAmount": "'+ str((Decimal(partdata[counter]['Amount']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
                 '"taxRate": "'+ tax_rate +'",'
                 '"taxAmount": "'+ tax +'",'
-                '"grossAmount": "'+ str(float(partdata[counter]['AmountIncludingVat'])) +'",'
+                '"grossAmount": "'+ str(Decimal(tax) + (Decimal(partdata[counter]['Amount']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
                 '"exciseUnit": "",'
                 '"exciseCurrency": "",'
-                '"taxRateName": ""'
+                '"taxRateName": "123"'
             '}')
 
             if counter != number_of_lines - 1:
@@ -240,9 +244,6 @@ def upload_document(request):
 
         goodsDetailsHeader = goodsDetailsHeader + goodsDetailsFooter
         taxDetailsHeader = taxDetailsHeader + taxDetailsFooter
-
-        print('goods details', goodsDetailsHeader)
-        print('tax details', taxDetailsHeader)
 
     else:
         print('error')
@@ -308,18 +309,20 @@ def upload_document(request):
     '"remarks": "",'
     '"qrCode": ""'
     '},'
-    '"payWay": [{'
-    '"paymentMode": "",'
-    '"paymentAmount": "",'
-    '"orderNumber": "a"'
-    '}],'
+    '"payWay": [],'
     '"extend": {'
     '"reason": "",'
     '"reasonCode": ""},'
     '"importServicesSeller": {}'
     '}')
 
+    print('--------------------------------------------------------------------')
+    print(upload_invoice_message)
+    print('--------------------------------------------------------------------')
+
+    # encode message to base64 bytes
     message_bytes = upload_invoice_message.encode('ascii')
+    # decode base64 bytes to string
     base64_message = base64.b64encode(message_bytes).decode('ascii')
 
     d = ('{'
@@ -366,38 +369,42 @@ def upload_document(request):
     finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
 
     if finalupload.status_code == 200:
-        print('upload done')
-        data = finalupload.json()
-        return_message = data['returnStateInfo']['returnMessage']
+        finaluploaddata = finalupload.json()
+        return_message = finaluploaddata['returnStateInfo']['returnMessage']
+        return_data = finaluploaddata['data']
 
-        # if return_message == 'SUCCESS':
-        #     content_base64 = data['data']['content']
-        #     content_decoded = base64.b64decode(content).decode('ascii')
+        message = return_message
 
-        # #     # convert to json
-        #     content_json = json.loads(content_decoded)
+        if return_message == 'SUCCESS':
+            content_base64 = finaluploaddata['data']['content']
+            content_decoded = base64.b64decode(content_base64).decode('ascii')
 
-        # #     # get the invoice number
-        #     invoice_number = content_json['basicInformation']['invoiceNo']
-        #     print('invoice number = ', invoice_number)
+        #     # convert to json
+            content_json = json.loads(content_decoded)
 
-        #     #update external document number
-        #     uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
-        #     upex = requests.get('uri')
-        #     if upex.status_code == 200:
-        #         data = {
-        #             'externalDocNumber': ''+invoice_number,
-        #             'docNumber': ''+dd,
-        #             'message': 'external doc number updated in database'
-        #         }
-        #         return JsonResponse(data, status=200)
-           # else:
-        #         data = {
-        #             'externalDocNumber': ''+invoice_number,
-        #             'docNumber': ''+dd,
-        #             'message': 'failed to update external document number in database'
-        #         }
-        # else:
+        #     # get the invoice number
+            invoice_number = content_json['basicInformation']['invoiceNo']
+            print('invoice number = ', invoice_number)
+
+            #update external document number
+            uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
+            upex = requests.get(uri)
+
+            if upex.status_code == 200:
+                message = 'E-invoice successfully generated + external document number updated in database'
+            else:
+                message = 'E-invoice successfully generated + failed to update external document number in database'
+
+        data = {
+                    'data': return_data,
+                    'externalDocNumber': 'hello',
+                    'docNumber': ''+ddd,
+                    'returnStateInfo': {
+                        'returnCode': '00',
+                        'returnMessage': ''+message
+                    }
+                    
+                }
         return JsonResponse(data, status=200)
         
     else: 
