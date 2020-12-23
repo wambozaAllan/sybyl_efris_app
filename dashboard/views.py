@@ -11,11 +11,11 @@ from decimal import *
 
 TWO_DECIMAL_PLACES = Decimal('0.00')
 
-def items(request):
+def credit_notes(request):
     context = {
-        'page': 'Items',
+        'page': 'Credit Notes',
     }
-    return render(request, 'dashboard/items.html', context)
+    return render(request, 'dashboard/credit-notes.html', context)
 
 def invoices(request):
     context = {
@@ -42,7 +42,19 @@ def load_items(request):
         return JsonResponse(data, status=400)
 
 def load_invoices(request):
-    url = 'http://localhost:8280/services/GetDocuments/getorders'
+    url = 'http://localhost:8280/services/GetDocuments/getInvoiceDocument'
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        print(response.headers.get('Content-Type'))
+        data = response.json()
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
+def load_credit_notes(request):
+    url = 'http://localhost:8280/services/GetDocuments/getDocumentForCreditNote'
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:

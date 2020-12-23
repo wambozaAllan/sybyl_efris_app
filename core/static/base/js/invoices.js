@@ -12,27 +12,27 @@ $(document).ready(function(){
                 console.log("success");
                 $('#docs-loader').hide();
 
-                for(a = 0; a < result.Orders.Order.length; a++){
+                for(a = 0; a < result.Documents.Document.length; a++){
                     let statusValue;
                     
-                    if(result.Orders.Order[a].status == "0"){
+                    if(result.Documents.Document[a].status == "0"){
                         statusValue = "Not Uploaded"
                     }
                     else {
-                        statusValue = result.Orders.Order[a].status;
+                        statusValue = result.Documents.Document[a].status;
                     }
 
                     let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+result.Orders.Order[a].orderNumber+'"/></td>');
+                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+result.Documents.Document[a].orderNumber+'"/></td>');
                     let rowCount = $('<td>'+ (a + 1) +'</td>');
-                    let orderNumber = $('<td>'+result.Orders.Order[a].orderNumber+'</td>');
-                    let documentDate = $('<td>'+result.Orders.Order[a].documentDate+'</td>');
-                    let salesPersonCode = $('<td>'+result.Orders.Order[a].salesPersonCode+'</td>');
-                    let documentType = $('<td>'+result.Orders.Order[a].documentType+'</td>');
-                    let status = $('<td>'+statusValue+'</td>');
-                    //let documentdate = '<td>'+result.Orders.Order[a].documentDate+'</td>';
-                    //let documentdate = '<td>'+result.Orders.Order[a].documentDate+'</td>';
-                    //let documentdate = '<td>'+result.Orders.Order[a].documentDate+'</td>';
+                    let orderNumber = $('<td>'+result.Documents.Document[a].orderNumber+'</td>');
+                    let documentDate = $('<td>'+result.Documents.Document[a].documentDate+'</td>');
+                    let salesPersonCode = $('<td>'+result.Documents.Document[a].salesPersonCode+'</td>');
+                    let documentType = $('<td>'+result.Documents.Document[a].documentType+'</td>');
+                    let customerName = $('<td>'+result.Documents.Document[a].customerName+'</td>');
+                    let externalDocumentNumber = '<td>'+result.Documents.Document[a].externalDocumentNumber+'</td>';
+                    let uraRefNumber = '<td>'+result.Documents.Document[a].uraRefNumber+'</td>';
+                    //let documentdate = '<td>'+result.Documents.Document[a].documentDate+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
@@ -40,7 +40,9 @@ $(document).ready(function(){
                     tablerow.append(documentDate);
                     tablerow.append(salesPersonCode);
                     tablerow.append(documentType);
-                    tablerow.append(status);
+                    tablerow.append(customerName);
+                    tablerow.append(externalDocumentNumber);
+                    tablerow.append(uraRefNumber);
 
                     orderTableBody.append(tablerow)
                 }
