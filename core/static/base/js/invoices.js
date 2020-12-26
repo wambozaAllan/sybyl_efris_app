@@ -80,7 +80,7 @@ $(document).ready(function(){
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost:8000/dashboard/upload_document?documentNumber="+documentNumber,
+                url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");
