@@ -153,7 +153,8 @@ def upload_invoice(request):
         '"invoiceType": "1",'
         '"invoiceKind": "1",'
         '"dataSource": "101",'
-        '"invoiceIndustryCode": "'+ partdata['invoiceIndustryCode'] +'",'
+        #'"invoiceIndustryCode": "'+ partdata['invoiceIndustryCode'] +'",'
+        '"invoiceIndustryCode": "101",'
         '"isBatch": "0"'
         '}')
 
@@ -224,6 +225,9 @@ def upload_invoice(request):
             '"discountFlag": "'+ partdata[counter]['discountFlag']+ '",'
             '"deemedFlag": "'+ partdata[counter]['deemedFlag'] +'",'
             '"exciseFlag": "'+ partdata[counter]['exciseFlag'] +'",'
+            # '"discountFlag": "2",'
+            # '"deemedFlag": "2",'
+            # '"exciseFlag": "2",'
             '"categoryId": "",'
             '"categoryName": "",'
             '"goodsCategoryId": "'+ partdata[counter]['goodsCategoryId'] +'",'
@@ -251,7 +255,7 @@ def upload_invoice(request):
                 '"grossAmount": "'+ str(Decimal(tax) + (Decimal(partdata[counter]['total']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
                 '"exciseUnit": "",'
                 '"exciseCurrency": "",'
-                '"taxRateName": "123"'
+                '"taxRateName": "'+str(Decimal(partdata[counter]['taxRate']).quantize(TWO_DECIMAL_PLACES))+'%"'
             '}')
 
             if counter != number_of_lines - 1:
