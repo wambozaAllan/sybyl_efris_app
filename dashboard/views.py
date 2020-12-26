@@ -19,7 +19,7 @@ def credit_notes(request):
 
 def invoices(request):
     context = {
-        'page': 'Documents',
+        'page': 'Invoices',
     }
     return render(request, 'dashboard/invoices.html', context)
 
@@ -42,7 +42,7 @@ def load_items(request):
         return JsonResponse(data, status=400)
 
 def load_invoices(request):
-    url = 'http://localhost:8280/services/GetDocuments/getInvoiceDocument'
+    url = 'http://localhost:8280/services/sybyl-efris/getAllInvoiceHeaders'
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:
@@ -54,7 +54,7 @@ def load_invoices(request):
         return JsonResponse(data, status=400)
 
 def load_credit_notes(request):
-    url = 'http://localhost:8280/services/GetDocuments/getDocumentForCreditNote'
+    url = 'http://localhost:8280/services/sybyl-efris/getAllCreditNoteHeaders'
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:
@@ -67,7 +67,7 @@ def load_credit_notes(request):
 
 
 def load_company_info(request):
-    url = 'http://localhost:8280/services/GetCompanyInformation/getcompanyinfor'
+    url = 'http://localhost:8280/services/sybyl-efris/getCompanyInformation'
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:
@@ -78,17 +78,19 @@ def load_company_info(request):
     else: 
         return JsonResponse(data, status=400)
 
-def update_external_document_number(request):
-    external_doc_num_update = request.GET['external_doc_num_update']
+def update_urainvoicenum_qrcode(request):
+    ura_invoice_num = request.GET['ura_invoice_num']
+    qrcode = request.GET['qrcode']
     doc_num = request.GET['doc_num']
 
-    url = 'http://localhost:8280/services/UpdateExternalDocumentNumber/updateExternalDocumentNumber'
+    url = 'http://localhost:8280/services/sybyl-efris/updateUraInvoiceAndQrcode'
     request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
     req_message = (
-        '<_putupdateexternaldocumentnumber>'
-            '<ExternalDocumentNumber>'+ external_doc_num_update +'</ExternalDocumentNumber>'
-            '<DocumentNumber>'+ doc_num +'</DocumentNumber>'
-        '</_putupdateexternaldocumentnumber>')
+        '<_putupdateuraoriginalinvoicenumberandqrcode>'
+            '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
+            '<uraQrcode>'+ qrcode +'</uraQrcode>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+        '</_putupdateuraoriginalinvoicenumberandqrcode>')
 
     response = requests.put(url, data=req_message, headers=request_headers)
 
@@ -100,55 +102,58 @@ def update_external_document_number(request):
     else: 
         return JsonResponse(data, status=400)
 
-def upload_document(request):
-    ddd = request.GET['documentNumber']
+def upload_invoice(request):
+    documentNumber = request.GET['documentNumber']
     data = {}
     now = datetime.now()
     datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
-    company_infor_response = requests.get('http://localhost:8280/services/GetCompanyInformation/getcompanyinfor', headers={'Accept':'application/json'})
+    #####################################################################################################
+    company_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCompanyInformation', headers={'Accept':'application/json'})
 
     if company_infor_response.status_code == 200:
         company_data = company_infor_response.json()
 
         seller_details = ('"sellerDetails": {'
-        '"tin":"' + company_data['Company']['Details'][0]['VatRegistrationNumber'] + '",'
-        '"ninBrn":"' + company_data['Company']['Details'][0]['MinBRN'] + '",'
-        '"legalName":"' + company_data['Company']['Details'][0]['LegalName'] + '",'
-        '"businessName":"' + company_data['Company']['Details'][0]['BusinessName'] + '",'
-        '"address":"' + company_data['Company']['Details'][0]['Address'] + '",'
-        '"mobilePhone":"' + company_data['Company']['Details'][0]['MobileNumber'] + '",'
-        '"linePhone":"' + company_data['Company']['Details'][0]['PhoneNumber'] + '",'
-        '"emailAddress":"' + company_data['Company']['Details'][0]['Email'] + '",'
-        '"placeOfBusiness":"' + company_data['Company']['Details'][0]['PlaceOfBusiness'] + '",'
-        '"referenceNo":"' + company_data['Company']['Details'][0]['ReferenceNumber'] + '",'
-        '"branchId":"' + company_data['Company']['Details'][0]['BranchId'] + '"'
+        '"tin":"' + company_data['company']['details'][0]['tin'] + '",'
+        '"ninBrn":"' + company_data['company']['details'][0]['ninBrn'] + '",'
+        '"legalName":"' + company_data['company']['details'][0]['legalName'] + '",'
+        '"businessName":"' + company_data['company']['details'][0]['businessName'] + '",'
+        '"address":"' + company_data['company']['details'][0]['address'] + '",'
+        '"mobilePhone":"' + company_data['company']['details'][0]['mobilePhone'] + '",'
+        '"linePhone":"' + company_data['company']['details'][0]['linePhone'] + '",'
+        '"emailAddress":"' + company_data['company']['details'][0]['emailAddress'] + '",'
+        '"placeOfBusiness":"' + company_data['company']['details'][0]['placeOfBusiness'] + '",'
+        '"referenceNo":"' + company_data['company']['details'][0]['referenceNo'] + '",'
+        '"branchId":"' + company_data['company']['details'][0]['branchId'] + '"'
         '}')
 
     else:
         print('error')
 
-    document_header_response = requests.get('http://localhost:8280/services/GetDocuments/getSpecificDocument?OrderNumber='+ddd, headers={'Accept':'application/json'})
+    #####################################################################################################
+    document_header_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificInvoiceHeader?documentNumber='+documentNumber, headers={'Accept':'application/json'})
 
     if document_header_response.status_code == 200:
         document_header_data = document_header_response.json()
-        partdata = document_header_data['Documents']['Document'][0]
+        partdata = document_header_data['invoiceHeader']['header'][0]
 
         document_date = dateutil.parser.parse(partdata['documentDate']) 
-        currency = "UGX" if not partdata['currencyCode'] else partdata['currencyCode']
+        currency = "UGX" if not partdata['currency'] else partdata['currency']
         issue_date = document_date.strftime('%Y-%m-%d %H:%M:%S')
+
         basic_information = ('"basicInformation": {'
-        '"invoiceNo": "'+ partdata['externalDocumentNumber'] +'",'
-        '"antifakeCode": "",'
+        '"invoiceNo": "'+ partdata['invoiceNo'] +'",'
+        '"antifakeCode": "'+ partdata['antifakeCode'] +'",'
         '"deviceNo": "TCSff5ba51958634436",'
         '"issuedDate": "'+ issue_date +'",'
-        '"operator": "'+ partdata['salesPersonCode'] +'",'
+        '"operator": "'+ partdata['operator'] +'",'
         '"currency": "'+ currency +'",'
-        '"oriInvoiceId": "'+ partdata['externalDocumentNumber'] +'",'
+        '"oriInvoiceId": "'+ partdata['invoiceNo'] +'",'
         '"invoiceType": "1",'
         '"invoiceKind": "1",'
         '"dataSource": "101",'
-        '"invoiceIndustryCode": "'+ partdata['OrderClass'] +'",'
+        '"invoiceIndustryCode": "'+ partdata['invoiceIndustryCode'] +'",'
         '"isBatch": "0"'
         '}')
 
@@ -156,12 +161,13 @@ def upload_document(request):
     else: 
         print('error')
 
-    document_lines_response = requests.get('http://localhost:8280/services/GetOrderLines/getDocumentLines?DocumentNumber='+ddd, headers={'Accept':'application/json'})
+    #######################################################################################################
+    document_lines_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificInvoiceLines?documentNumber='+documentNumber, headers={'Accept':'application/json'})
 
     if document_lines_response.status_code == 200:
         document_lines_data = document_lines_response.json()
         counter = 0
-        partdata =  document_lines_data['DocumentLines']['goodsDetails']
+        partdata =  document_lines_data['invoiceLines']['line']
         number_of_lines = len(partdata)
         number_of_items = 0   
         total_amount_vat = Decimal(0.0)
@@ -175,52 +181,52 @@ def upload_document(request):
         taxDetailsFooter = ']'
     
         while counter < number_of_lines:
-            tax = str((Decimal(partdata[counter]['AmountIncludingVat']) - Decimal(partdata[counter]['Amount'])).quantize(TWO_DECIMAL_PLACES))
-            total = str((Decimal(partdata[counter]['Amount']) * Decimal(partdata[counter]['Quantity'])).quantize(TWO_DECIMAL_PLACES))
-            customerNumber = partdata[counter]['CustomerNumber']
-            item = partdata[counter]['Description']
-            tax_rate = str((Decimal(partdata[counter]['VatPercentage']) / 100).quantize(TWO_DECIMAL_PLACES))
-            number_of_items = number_of_items + int(Decimal(partdata[counter]['Quantity']))
+            tax = str((Decimal(partdata[counter]['amountIncludingVat']) - Decimal(partdata[counter]['total'])).quantize(TWO_DECIMAL_PLACES))
+            total = str((Decimal(partdata[counter]['total']) * Decimal(partdata[counter]['qty'])).quantize(TWO_DECIMAL_PLACES))
+            customerNumber = partdata[counter]['customerNo']
+            item = partdata[counter]['item']
+            tax_rate = str((Decimal(partdata[counter]['taxRate']) / 100).quantize(TWO_DECIMAL_PLACES))
+            number_of_items = number_of_items + int(Decimal(partdata[counter]['qty']))
 
             # total amount including VAT
-            total_amount_vat = (total_amount_vat + Decimal(tax) + (Decimal(partdata[counter]['Amount']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
+            total_amount_vat = (total_amount_vat + Decimal(tax) + (Decimal(partdata[counter]['total']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
 
-            total_amount = (total_amount + (Decimal(partdata[counter]['Amount']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
+            total_amount = (total_amount + (Decimal(partdata[counter]['total']) - Decimal(tax))).quantize(TWO_DECIMAL_PLACES)
 
             # discount totl
             discount_total = ''
-            discount_flag = partdata[counter]['Discount']
+            discount_flag = partdata[counter]['discountFlag']
 
             if discount_flag == '0' or discount_flag == '2':
                 discount_total = ''
             else:
-                discount_total = '-'+partdata[counter]['LineDiscountPercentage']
+                discount_total = '-'+partdata[counter]['discountTaxRate']
             #########################################################################
 
-            unit_of_measure = partdata[counter]['UnitOfMeasure']
+            unit_of_measure = partdata[counter]['unitOfMeasure']
             if unit_of_measure == 'UNIT':
                 unit_of_measure = 'UN'
             else:
-                unit_of_measure = partdata[counter]['UnitOfMeasure']
+                unit_of_measure = partdata[counter]['unitOfMeasure']
 
             goodsDetailsBody = ('{'
             '"item": "'+ item +'",'
-            '"itemCode": "'+ partdata[counter]['Number'] +'",'
-            '"qty": "'+ str(int(Decimal(partdata[counter]['Quantity']))) +'",'
+            '"itemCode": "'+ partdata[counter]['itemCode'] +'",'
+            '"qty": "'+ str(int(Decimal(partdata[counter]['qty']))) +'",'
             '"unitOfMeasure": "'+ unit_of_measure +'",'
-            '"unitPrice": "'+ str(Decimal(partdata[counter]['UnitPrice']).quantize(TWO_DECIMAL_PLACES)) +'",'
-            '"total": "'+ str(Decimal(partdata[counter]['Amount']).quantize(TWO_DECIMAL_PLACES)) +'",'
+            '"unitPrice": "'+ str(Decimal(partdata[counter]['unitPrice']).quantize(TWO_DECIMAL_PLACES)) +'",'
+            '"total": "'+ str(Decimal(partdata[counter]['total']).quantize(TWO_DECIMAL_PLACES)) +'",'
             '"taxRate": "'+ tax_rate +'",'
             '"tax": "'+ tax +'",'
             '"discountTotal": "'+ discount_total +'",'
-            '"discountTaxRate": "'+ str(Decimal(partdata[counter]['LineDiscountPercentage']).quantize(TWO_DECIMAL_PLACES)) +'",'
+            '"discountTaxRate": "'+ str(Decimal(partdata[counter]['discountTaxRate']).quantize(TWO_DECIMAL_PLACES)) +'",'
             '"orderNumber": "'+ str(counter) +'",'
-            '"discountFlag": "'+ partdata[counter]['Discount']+ '",'
-            '"deemedFlag": "'+ partdata[counter]['DeemedFlag'] +'",'
-            '"exciseFlag": "'+ partdata[counter]['ExciseFlag'] +'",'
+            '"discountFlag": "'+ partdata[counter]['discountFlag']+ '",'
+            '"deemedFlag": "'+ partdata[counter]['deemedFlag'] +'",'
+            '"exciseFlag": "'+ partdata[counter]['exciseFlag'] +'",'
             '"categoryId": "",'
             '"categoryName": "",'
-            '"goodsCategoryId": "'+ partdata[counter]['GoodsCategoryId'] +'",'
+            '"goodsCategoryId": "'+ partdata[counter]['goodsCategoryId'] +'",'
             '"goodsCategoryName": "",'
             '"exciseRate": "",'
             '"exciseRule": "",'
@@ -238,11 +244,11 @@ def upload_document(request):
             goodsDetailsHeader = goodsDetailsHeader + goodsDetailsBody
 
             taxDetailsBody = ('{'
-                '"taxCategory": "'+ partdata[counter]['VatProdPostingGroup'] +'",'
-                '"netAmount": "'+ str((Decimal(partdata[counter]['Amount']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
+                '"taxCategory": "'+ partdata[counter]['vatProdPostingGroup'] +'",'
+                '"netAmount": "'+ str((Decimal(partdata[counter]['total']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
                 '"taxRate": "'+ tax_rate +'",'
                 '"taxAmount": "'+ tax +'",'
-                '"grossAmount": "'+ str(Decimal(tax) + (Decimal(partdata[counter]['Amount']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
+                '"grossAmount": "'+ str(Decimal(tax) + (Decimal(partdata[counter]['total']) - Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
                 '"exciseUnit": "",'
                 '"exciseCurrency": "",'
                 '"taxRateName": "123"'
@@ -260,24 +266,24 @@ def upload_document(request):
     else:
         print('error')
 
-    buyer_infor_response = requests.get('http://localhost:8280/services/GetCustomerInformation/getCustomerInformation?CustomerNumber='+customerNumber, headers={'Accept': 'application/json'})
+    buyer_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCustomerInformation?customerNo='+customerNumber, headers={'Accept': 'application/json'})
     if buyer_infor_response.status_code == 200:
         buyer_infor_data = buyer_infor_response.json()
-        if(bool(buyer_infor_data['Customer'])):
-            partdata = buyer_infor_data['Customer']['Details'][0]
+        if(bool(buyer_infor_data['customer'])):
+            partdata = buyer_infor_data['customer']['details'][0]
             buyer_details = ('"buyerDetails": {'
-                '"buyerTin": "'+ partdata['VatRegistrationNumber'] +'",'
-                '"buyerNinBrn": "'+ partdata['MinBrn'] +'",'
-                '"buyerPassportNum": "'+ partdata['PassportNumber'] +'",'
-                '"buyerLegalName": "'+ partdata['Name'] +'",'
-                '"buyerBusinessName": "'+ partdata['Name'] +'",'
-                '"buyerAddress": "'+ partdata['Address'] +'",'
-                '"buyerEmail": "'+ partdata['Email'] +'",'
-                '"buyerMobilePhone": "'+ partdata['MobileNumber'] +'",'
-                '"buyerLinePhone": "'+ partdata['PhoneNumber'] +'",'
-                '"buyerPlaceOfBusi": "'+ partdata['PlaceOfBusiness'] +'",'
+                '"buyerTin": "'+ partdata['buyerTin'] +'",'
+                '"buyerNinBrn": "'+ partdata['buyerNinBrn'] +'",'
+                '"buyerPassportNum": "'+ partdata['buyerPassportNum'] +'",'
+                '"buyerLegalName": "'+ partdata['name'] +'",'
+                '"buyerBusinessName": "'+ partdata['buyerBusinessName'] +'",'
+                '"buyerAddress": "'+ partdata['buyerAddress'] +'",'
+                '"buyerEmail": "'+ partdata['buyerEmail'] +'",'
+                '"buyerMobilePhone": "'+ partdata['buyerMobilePhone'] +'",'
+                '"buyerLinePhone": "'+ partdata['buyerLinePhone'] +'",'
+                '"buyerPlaceOfBusi": "'+ partdata['buyerPlaceOfBusi'] +'",'
                 '"buyerType": "1",'
-                '"buyerCitizenship": "'+ partdata['BuyerCitizenship'] +'",'
+                '"buyerCitizenship": "'+ partdata['buyerCitizenship'] +'",'
                 '"buyerSector": "",'
                 '"buyerReferenceNo": ""'
                 '}')
@@ -396,21 +402,22 @@ def upload_document(request):
 
         #     # get the invoice number
             invoice_number = content_json['basicInformation']['invoiceNo']
+            qrcode = content_json['summary']['qrCode']
             print('invoice number = ', invoice_number)
 
             #update external document number
-            uri = 'http://localhost:8000/dashboard/update_external_document_number?external_doc_num_update='+ invoice_number +'+&doc_num='+ddd
+            uri = 'http://localhost:8000/dashboard/update_external_document_number?ura_invoice_num='+ invoice_number +'=&qrcode'+qrcode+'+&doc_num='+documentNumber
             upex = requests.get(uri)
 
             if upex.status_code == 200:
-                message = 'E-invoice successfully generated + external document number updated in database'
+                message = 'E-invoice ('+invoice_number+') successfully generated + Ura orginal invoice number ('+ invoice_number +') and Qrcode ('+ qrcode +') updated in navision database'
             else:
-                message = 'E-invoice successfully generated + failed to update external document number in database'
+                message = 'E-invoice ('+invoice_number+')  successfully generated + failed to update Ura orginal invoice number ('+ invoice_number +') and Qrcode ('+ qrcode +') updated in navision database'
 
         data = {
                     'data': return_data,
                     'externalDocNumber': 'hello',
-                    'docNumber': ''+ddd,
+                    'docNumber': ''+documentNumber,
                     'returnStateInfo': {
                         'returnCode': '00',
                         'returnMessage': ''+message
@@ -424,3 +431,4 @@ def upload_document(request):
             'errorcode':''+str(finalupload.status_code)
         }
         return JsonResponse(data, status=400)
+

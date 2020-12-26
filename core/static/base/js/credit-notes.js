@@ -1,6 +1,6 @@
 $(document).ready(function(){
     var orderTableBody = $("#credit-notes-table");
-    var uploadInvoiceBtn = $("#upload-invoices");
+    var uploadCreditNotes = $("#upload-credit-notes");
 
     function loadCreditNotes() {
         $.ajax({
@@ -12,29 +12,26 @@ $(document).ready(function(){
                 console.log("success");
                 $('#docs-loader').hide();
 
-                for(a = 0; a < result.Documents.Document.length; a++){
+                for(counter = 0; counter < result.creditNoteHeaders.header.length; counter++){
 
                     let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+result.Documents.Document[a].orderNumber+'"/></td>');
-                    let rowCount = $('<td>'+ (a + 1) +'</td>');
-                    let orderNumber = $('<td>'+result.Documents.Document[a].orderNumber+'</td>');
-                    let documentDate = $('<td>'+result.Documents.Document[a].documentDate+'</td>');
-                    let salesPersonCode = $('<td>'+result.Documents.Document[a].salesPersonCode+'</td>');
-                    let documentType = $('<td>'+result.Documents.Document[a].documentType+'</td>');
-                    let customerName = $('<td>'+result.Documents.Document[a].customerName+'</td>');
-                    let externalDocumentNumber = '<td>'+result.Documents.Document[a].externalDocumentNumber+'</td>';
-                    let uraRefNumber = '<td>'+result.Documents.Document[a].uraRefNumber+'</td>';
-                    //let documentdate = '<td>'+result.Documents.Document[a].documentDate+'</td>';
+                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+result.creditNoteHeaders.header[counter].creditNoteNo+'"/></td>');
+                    let rowCount = $('<td>'+ (counter + 1) +'</td>');
+                    let creditNoteNo = $('<td>'+result.creditNoteHeaders.header[counter].creditNoteNo+'</td>');
+                    let documentDate = $('<td>'+result.creditNoteHeaders.header[counter].applicationTime+'</td>');
+                    let operator = $('<td>'+result.creditNoteHeaders.header[counter].operator+'</td>');
+                    let customerName = $('<td>'+result.creditNoteHeaders.header[counter].customerName+'</td>');
+                    let externalDocumentNumber = '<td>'+result.creditNoteHeaders.header[counter].externalDocumentNo+'</td>';
+                    let uraReferenceNo = '<td>'+result.creditNoteHeaders.header[counter].uraReferenceNo+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
-                    tablerow.append(orderNumber);
+                    tablerow.append(creditNoteNo);
                     tablerow.append(documentDate);
-                    tablerow.append(salesPersonCode);
-                    tablerow.append(documentType);
+                    tablerow.append(operator);
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
-                    tablerow.append(uraRefNumber);
+                    tablerow.append(uraReferenceNo);
 
                     orderTableBody.append(tablerow)
                 }

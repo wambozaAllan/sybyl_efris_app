@@ -12,37 +12,29 @@ $(document).ready(function(){
                 console.log("success");
                 $('#docs-loader').hide();
 
-                for(a = 0; a < result.Documents.Document.length; a++){
-                    let statusValue;
-                    
-                    if(result.Documents.Document[a].status == "0"){
-                        statusValue = "Not Uploaded"
-                    }
-                    else {
-                        statusValue = result.Documents.Document[a].status;
-                    }
+                for(counter = 0; counter < result.invoiceHeaders.header.length; counter++){
 
                     let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+result.Documents.Document[a].orderNumber+'"/></td>');
-                    let rowCount = $('<td>'+ (a + 1) +'</td>');
-                    let orderNumber = $('<td>'+result.Documents.Document[a].orderNumber+'</td>');
-                    let documentDate = $('<td>'+result.Documents.Document[a].documentDate+'</td>');
-                    let salesPersonCode = $('<td>'+result.Documents.Document[a].salesPersonCode+'</td>');
-                    let documentType = $('<td>'+result.Documents.Document[a].documentType+'</td>');
-                    let customerName = $('<td>'+result.Documents.Document[a].customerName+'</td>');
-                    let externalDocumentNumber = '<td>'+result.Documents.Document[a].externalDocumentNumber+'</td>';
-                    let uraRefNumber = '<td>'+result.Documents.Document[a].uraRefNumber+'</td>';
-                    //let documentdate = '<td>'+result.Documents.Document[a].documentDate+'</td>';
+                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+result.invoiceHeaders.header[counter].antifakeCode+'"/></td>');
+                    let rowCount = $('<td>'+ (counter + 1) +'</td>');
+                    let antifakeCode = $('<td>'+result.invoiceHeaders.header[counter].antifakeCode+'</td>');
+                    let documentDate = $('<td>'+result.invoiceHeaders.header[counter].documentDate+'</td>');
+                    let operator = $('<td>'+result.invoiceHeaders.header[counter].operator+'</td>');
+                    let invoiceType = $('<td>'+result.invoiceHeaders.header[counter].invoiceType+'</td>');
+                    let customerName = $('<td>'+result.invoiceHeaders.header[counter].customerName+'</td>');
+                    let externalDocumentNumber = '<td>'+result.invoiceHeaders.header[counter].invoiceNo+'</td>';
+                    let oriInvoiceId = '<td>'+result.invoiceHeaders.header[counter].oriInvoiceId+'</td>';
+                    //let documentdate = '<td>'+result.invoiceHeaders.header[a].documentDate+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
-                    tablerow.append(orderNumber);
+                    tablerow.append(antifakeCode);
                     tablerow.append(documentDate);
-                    tablerow.append(salesPersonCode);
-                    tablerow.append(documentType);
+                    tablerow.append(operator);
+                    tablerow.append(invoiceType);
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
-                    tablerow.append(uraRefNumber);
+                    tablerow.append(oriInvoiceId);
 
                     orderTableBody.append(tablerow)
                 }

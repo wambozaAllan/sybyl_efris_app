@@ -10,6 +10,6 @@ urlpatterns = [
     path('load_credit_notes/', views.load_credit_notes, name='load_credit_notes'),
     path('load_invoices/', views.load_invoices, name='load_invoices'),
     path('load_company_info/', views.load_company_info, name='load_company_info'),
-    path('upload_document/', views.upload_document, name='upload_document'),
-    path('update_external_document_number/', views.update_external_document_number, name='update_external_document_number'),
+    path('upload_invoice/', views.upload_invoice, name='upload_invoice'),
+    path('update_urainvoicenum_qrcode/', views.update_urainvoicenum_qrcode, name='update_urainvoicenum_qrcode'),
 ]
