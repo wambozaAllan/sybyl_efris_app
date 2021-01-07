@@ -16,7 +16,7 @@
                     <div class="d-none d-md-flex">
                         <p class="text-muted mb-0 tx-13 cursor-pointer">Dashboard</p>
                         <i class="mdi mdi-chevron-right text-muted"></i>
-                        <p class="text-muted mb-0 tx-13 cursor-pointer">{{ page }}</p>
+                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'credit_notes' %}">{{ page }}</a></p>
                     </div>
                 </div>
                 <div class="button-wrapper d-flex align-items-center mt-md-3 mt-xl-0">
@@ -34,14 +34,14 @@
                     <div class="card-body">
                         <div class="row" style="margin-bottom: 2%;">
                             <div class="col-xl-4">
-                                <input type="text" class="form-control" id="item-number" placeholder="Credit Note Number" />
+                                <input type="text" class="form-control" id="credit-note-number" placeholder="Credit Note Number" />
                             </div>
                             <div class="col-xl-4">
                                 <button type="button" class="btn btn-primary" id="search-credit-notes">Search</button>
                             </div>
                         </div>
                         <div>
-                            <button type="button" class="btn btn-primary" id="upload-credit-notes" disabled>Upload Credit Note</button>
+                            <button type="button" class="btn btn-primary" id="upload-credit-notes">Upload Credit Note</button>
                         </div>
 
                         <div class="table-responsive pt-3">
@@ -84,6 +84,11 @@
                                 <span></span>
                                 <span></span>
                               </div>
+                              <br/>
+                              <nav aria-label="Page navigation">
+            <ul id="paginator" class="pagination">
+            </ul>
+        </nav>
                         </div>
                     </div>
                 </div>
@@ -99,5 +104,6 @@
 
 {% block scripts %}
 <script src="{% static 'base/js/base.js' %}"></script>
+<script src="{% static 'vendor/js/sweetalert.min.js' %}"></script>
 <script src="{% static 'base/js/credit-notes.js' %}"></script>
 {% endblock %}

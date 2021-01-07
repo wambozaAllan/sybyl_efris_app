@@ -16,7 +16,7 @@
                     <div class="d-none d-md-flex">
                         <p class="text-muted mb-0 tx-13 cursor-pointer">Dashboard</p>
                         <i class="mdi mdi-chevron-right text-muted"></i>
-                        <p class="text-muted mb-0 tx-13 cursor-pointer">{{ page }}</p>
+                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'invoices' %}">{{ page }}</a></p>
                     </div>
                 </div>
                 <div class="button-wrapper d-flex align-items-center mt-md-3 mt-xl-0">
@@ -90,6 +90,11 @@
                                 <span></span>
                                 <span></span>
                               </div>
+                              <br/>
+                              <nav aria-label="Page navigation">
+            <ul id="paginator" class="pagination">
+            </ul>
+        </nav>
                         </div>
                     </div>
                 </div>
