@@ -112,6 +112,30 @@ def load_company_info(request):
     else: 
         return JsonResponse(data, status=400)
 
+def update_credit_note_id(request):
+    credit_note_id = request.GET['credit_note_id']
+    doc_num = request.GET['doc_num']
+
+    url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteID'
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
+    req_message = (
+        '<_putupdatecreditnoteid>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+            '<uraRefNo>'+ credit_note_id +'</uraRefNo>'
+        '</_putupdatecreditnoteid>')
+
+    print(req_message)
+
+    response = requests.put(url, data=req_message, headers=request_headers)
+    print(response.status_code)
+
+    data = {}
+    if response.status_code == 200:
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
 def update_urainvoicenum_qrcode(request):
     ura_invoice_num = request.GET['ura_invoice_num']
     qrcode = request.GET['qrcode']
@@ -129,6 +153,34 @@ def update_urainvoicenum_qrcode(request):
             '<uraRefNo>'+ ura_ref_no +'</uraRefNo>'
             '<verificationCode>'+ verification_code +'</verificationCode>'
         '</_putupdateuraoriginalinvoicenumberandqrcode>')
+
+    print(req_message)
+
+    response = requests.put(url, data=req_message, headers=request_headers)
+    print(response.status_code)
+
+    data = {}
+    if response.status_code == 200:
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
+def update_credit_note_three(request):
+    ura_invoice_num = request.GET['ura_invoice_num']
+    qrcode = request.GET['qrcode']
+    doc_num = request.GET['doc_num']
+    verification_code = request.GET['verification_code']
+
+    url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteThree'
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
+    req_message = (
+        '<_putupdatecreditnotethree>'
+            '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
+            '<uraQrcode>'+ qrcode +'</uraQrcode>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+            '<verificationCode>'+ verification_code +'</verificationCode>'
+        '</_putupdatecreditnotethree>')
 
     print(req_message)
 
@@ -194,6 +246,8 @@ def upload_invoice(request):
         document_header_data = document_header_response.json()
         partdata = document_header_data['invoiceHeader']['header'][0]
 
+        #
+
         seller_details = ('"sellerDetails": {'
         '"tin":"' + company_data['company']['details'][0]['tin'] + '",'
         '"ninBrn":"' + company_data['company']['details'][0]['ninBrn'] + '",'
@@ -204,7 +258,7 @@ def upload_invoice(request):
         '"linePhone":"' + company_data['company']['details'][0]['linePhone'] + '",'
         '"emailAddress":"' + company_data['company']['details'][0]['emailAddress'] + '",'
         '"placeOfBusiness":"' + company_data['company']['details'][0]['placeOfBusiness'] + '",'
-        '"referenceNo":"' + partdata['antifakeCode']  + '",'
+        '"referenceNo":"'+ partdata['antifakeCode'] +'",'
         '"branchId":"' + company_data['company']['details'][0]['branchId'] + '"'
         '}')
 
@@ -254,7 +308,7 @@ def upload_invoice(request):
             tax = str((Decimal(partdata[counter]['amountIncludingVat']) - Decimal(partdata[counter]['total'])).quantize(TWO_DECIMAL_PLACES))
             total = str((Decimal(partdata[counter]['total']) * Decimal(partdata[counter]['qty'])).quantize(TWO_DECIMAL_PLACES))
             customerNumber = partdata[counter]['customerNo']
-            item = partdata[counter]['item']
+            item = (partdata[counter]['item']).replace('"', '\\"')
             tax_rate = str((Decimal(partdata[counter]['taxRate']) / 100).quantize(TWO_DECIMAL_PLACES))
             number_of_items = number_of_items + int(Decimal(partdata[counter]['qty']))
             tax_category = partdata[counter]['vatProdPostingGroup']
@@ -262,6 +316,8 @@ def upload_invoice(request):
             if tax_category == 'VAT18-P' or tax_category == 'VAT18-E':
                 tax_category = 'STANDARD'
             elif tax_category == '':
+                tax_category = 'ZERO RATE'
+            elif tax_category == 'ZERO RATED':
                 tax_category = 'ZERO RATE'
 
 
@@ -493,7 +549,7 @@ def upload_invoice(request):
             print('qrcode = ', qrcode)
 
             #update external document number
-            uri = 'http://localhost/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code
+            uri = 'http://localhost:8000/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code
             print('.....'+uri)
             upex = requests.get(uri)
 
@@ -583,7 +639,7 @@ def upload_credit_note(request):
             tax = str((Decimal(partdata[counter]['amountIncludingVat']) - Decimal(partdata[counter]['total'])).quantize(TWO_DECIMAL_PLACES))
             total = str((Decimal(partdata[counter]['total']) * Decimal(partdata[counter]['qty'])).quantize(TWO_DECIMAL_PLACES))
             customerNumber = partdata[counter]['customerNo']
-            item = partdata[counter]['item']
+            item = (partdata[counter]['item']).replace('"', '\\"')
             tax_rate = str((Decimal(partdata[counter]['taxRate']) / 100).quantize(TWO_DECIMAL_PLACES))
             number_of_items = number_of_items + int(Decimal(partdata[counter]['qty']))
 
@@ -593,6 +649,11 @@ def upload_credit_note(request):
                 tax_category = 'STANDARD'
             elif tax_category == '':
                 tax_category = 'ZERO RATE'
+            elif tax_category == 'ZERO RATED':
+                tax_category = 'ZERO RATE'
+
+            if tax_rate == '0.00':
+                tax_rate = '0';
 
            # total amount including VAT
             total_amount_vat = (total_amount_vat + (Decimal(partdata[counter]['amountIncludingVat']))).quantize(TWO_DECIMAL_PLACES)
@@ -606,7 +667,12 @@ def upload_credit_note(request):
             if discount_flag == '0' or discount_flag == '2':
                 discount_total = ''
             else:
-                discount_total = '-'+partdata[counter]['discountTaxRate']
+                a = Decimal(partdata[counter]['discountTaxRate']).quantize(TWO_DECIMAL_PLACES)
+                if a == 0.00:
+                    discount_total = str(a)
+                else:
+                    discount_total = '-'+str(a)
+
             #########################################################################
 
             unit_of_measure = partdata[counter]['unitOfMeasure']
@@ -906,89 +972,102 @@ def upload_credit_note(request):
 
                             # convert to json
                             content_json = json.loads(content_decoded)
-                            refund_invoice_num = content_json['refundInvoiceNo']
+                            print(content_json)
+                            
+                            if content_json.get('refundInvoiceNo') == None:
+                                message = 'Credit note generated awaiting client approval'
+                                uri = 'http://localhost:8000/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber
+                                upex = requests.get(uri)
 
-                            print('Refund Invoice Number = '+refund_invoice_num)
+                                if upex.status_code == 200:
+                                    message = 'Credit note generated awaiting client approval'
+                                else:
+                                    message = 'Credit note generated awaiting client approval + failed to update credit note id'
+    
+                            else:
+                                refund_invoice_num = content_json['refundInvoiceNo']
 
-                            # build interface T108 message
-                            interface_t108_message = ('{'
-                                    '"invoiceNo": "'+ refund_invoice_num +'"'
-                                '}')
+                                print('Refund Invoice Number = '+refund_invoice_num)
 
-                            # encode message to base64 bytes
-                            message_bytes = interface_t108_message.encode('ascii')
-                            # decode base64 bytes to string
-                            base64_message = base64.b64encode(message_bytes).decode('ascii')
+                                # build interface T108 message
+                                interface_t108_message = ('{'
+                                        '"invoiceNo": "'+ refund_invoice_num +'"'
+                                    '}')
 
-                            # complete T108 message
-                            complete_t108_message = ('{'
-                                    '"data": {'
-                                    '"content": "'+base64_message+'",'
-                                        '"signature": "",'
-                                        '"dataDescription": {'
-                                            '"codeType": "0",'
-                                            '"encryptCode": "1",'
-                                            '"zipCode": "0"'
-                                       ' }},'
-                                   ' "globalInfo": {'
-                                        '"appId": "",'
-                                        '"version": "1.1.20191201",'
-                                        '"dataExchangeId": "9230489223014123",'
-                                        '"interfaceCode": "T108",'
-                                        '"requestCode": "TP",'
-                                        '"requestTime": "'+datetime_str+'",'
-                                        '"responseCode": "TA",'
-                                        '"userName": "1000024517",'
-                                        '"deviceMAC": "005056B65332",'
-                                        '"deviceNo": "TCSff5ba51958634436",'
-                                        '"tin": "1000024517",'
-                                        '"brn": "",'
-                                        '"taxpayerID": "1000024517",'
-                                        '"longitude": "116.397128",'
-                                        '"latitude": "39.916527",'
-                                        '"extendField": {'
-                                            '"responseDateFormat": "dd/MM/yyyy",'
-                                            '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-                                        '}'
-                                    '},'
-                                    '"returnStateInfo": {'
-                                        '"returnCode": "",'
-                                        '"returnMessage": ""'
-                                   ' }'
-                                '}')
+                                # encode message to base64 bytes
+                                message_bytes = interface_t108_message.encode('ascii')
+                                # decode base64 bytes to string
+                                base64_message = base64.b64encode(message_bytes).decode('ascii')
 
-                            # convert message to json
-                            interface_t108_json = json.loads(complete_t108_message)
+                                # complete T108 message
+                                complete_t108_message = ('{'
+                                        '"data": {'
+                                        '"content": "'+base64_message+'",'
+                                            '"signature": "",'
+                                            '"dataDescription": {'
+                                                '"codeType": "0",'
+                                                '"encryptCode": "1",'
+                                                '"zipCode": "0"'
+                                           ' }},'
+                                       ' "globalInfo": {'
+                                            '"appId": "",'
+                                            '"version": "1.1.20191201",'
+                                            '"dataExchangeId": "9230489223014123",'
+                                            '"interfaceCode": "T108",'
+                                            '"requestCode": "TP",'
+                                            '"requestTime": "'+datetime_str+'",'
+                                            '"responseCode": "TA",'
+                                            '"userName": "1000024517",'
+                                            '"deviceMAC": "005056B65332",'
+                                            '"deviceNo": "TCSff5ba51958634436",'
+                                            '"tin": "1000024517",'
+                                            '"brn": "",'
+                                            '"taxpayerID": "1000024517",'
+                                            '"longitude": "116.397128",'
+                                            '"latitude": "39.916527",'
+                                            '"extendField": {'
+                                                '"responseDateFormat": "dd/MM/yyyy",'
+                                                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
+                                            '}'
+                                        '},'
+                                        '"returnStateInfo": {'
+                                            '"returnCode": "",'
+                                            '"returnMessage": ""'
+                                       ' }'
+                                    '}')
 
-                            t108_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t108_json)
+                                # convert message to json
+                                interface_t108_json = json.loads(complete_t108_message)
 
-                            if t108_upload.status_code == 200:
-                                t108_data = t108_upload.json()
-                                return_message = t108_data['returnStateInfo']['returnMessage']
-                                return_data = t108_data['data']
+                                t108_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t108_json)
 
-                                if return_message == 'SUCCESS':
-                                    content_base64 = t108_data['data']['content']
-                                    content_decoded = base64.b64decode(content_base64).decode('ascii')
+                                if t108_upload.status_code == 200:
+                                    t108_data = t108_upload.json()
+                                    return_message = t108_data['returnStateInfo']['returnMessage']
+                                    return_data = t108_data['data']
 
-                                    # convert to json
-                                    content_json = json.loads(content_decoded)
+                                    if return_message == 'SUCCESS':
+                                        content_base64 = t108_data['data']['content']
+                                        content_decoded = base64.b64decode(content_base64).decode('ascii')
 
-                                    # get fields
-                                    verification_code = content_json['basicInformation']['antifakeCode']
-                                    qrcode = content_json['summary']['qrCode']
+                                        # convert to json
+                                        content_json = json.loads(content_decoded)
 
-                                    print('verification code = '+verification_code)
-                                    print('qrcode = '+qrcode)
+                                        # get fields
+                                        verification_code = content_json['basicInformation']['antifakeCode']
+                                        qrcode = content_json['summary']['qrCode']
 
-                                    #update credit note header
-                                    uri = 'http://localhost/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
-                                    upex = requests.get(uri)
+                                        print('verification code = '+verification_code)
+                                        print('qrcode = '+qrcode)
 
-                                    if upex.status_code == 200:
-                                        message = 'Credit note ('+refund_invoice_num+') successfully generated + credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code ('+ verification_code +') updated in navision database'
-                                    else:
-                                        message = 'Credit note ('+refund_invoice_num+')  successfully generated + failed to update credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code('+ verification_code +') in navision database'
+                                        #update credit note header
+                                        uri = 'http://localhost:8000/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
+                                        upex = requests.get(uri)
+
+                                        if upex.status_code == 200:
+                                            message = 'Credit note ('+refund_invoice_num+') successfully generated + credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code ('+ verification_code +') updated in navision database'
+                                        else:
+                                            message = 'Credit note ('+refund_invoice_num+')  successfully generated + failed to update credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code('+ verification_code +') in navision database'
 
         else:
             return_code = finaluploaddata['returnStateInfo']['returnCode']
@@ -1004,7 +1083,6 @@ def upload_credit_note(request):
                     
                 }
     return JsonResponse(data, status=200)
-
 
 def search_invoice(request):
     doc_num = request.GET.get('doc_num')
@@ -1033,3 +1111,181 @@ def search_credit_note(request):
     
     else: 
         return JsonResponse(data, status=400)
+
+def dd(request):
+    documentNumber = request.GET['v']
+    now = datetime.now()
+    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    credit_note_id = request.GET['credit_note_id']
+    message = 'Credit note pending client approval'
+    # build interface T112 message
+    interface_t112_message = ('{'
+            '"id": "'+ credit_note_id +'"'
+        '}')
+
+    # encode message to base64 bytes
+    message_bytes = interface_t112_message.encode('ascii')
+    # decode base64 bytes to string
+    base64_message = base64.b64encode(message_bytes).decode('ascii')
+
+    # complete T112 message
+    complete_t112_message = ('{'
+    '"data": {'
+    '"content": "'+base64_message+'",'
+        '"signature": "",'
+        '"dataDescription": {'
+            '"codeType": "0",'
+            '"encryptCode": "1",'
+            '"zipCode": "0"'
+       ' }},'
+    ' "globalInfo": {'
+        '"appId": "",'
+        '"version": "1.1.20191201",'
+        '"dataExchangeId": "9230489223014123",'
+        '"interfaceCode": "T112",'
+        '"requestCode": "TP",'
+        '"requestTime": "'+datetime_str+'",'
+        '"responseCode": "TA",'
+        '"userName": "1000024517",'
+        '"deviceMAC": "005056B65332",'
+        '"deviceNo": "TCSff5ba51958634436",'
+        '"tin": "1000024517",'
+        '"brn": "",'
+        '"taxpayerID": "1000024517",'
+        '"longitude": "116.397128",'
+        '"latitude": "39.916527",'
+        '"extendField": {'
+            '"responseDateFormat": "dd/MM/yyyy",'
+            '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
+        '}'
+    '},'
+    '"returnStateInfo": {'
+        '"returnCode": "",'
+        '"returnMessage": ""'
+    ' }'
+    '}')
+
+    # convert message to json
+    interface_t112_json = json.loads(complete_t112_message)
+
+    t112_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t112_json)
+
+    if t112_upload.status_code == 200:
+        t112_data = t112_upload.json()
+        return_message = t112_data['returnStateInfo']['returnMessage']
+        return_data = t112_data['data']
+
+        if return_message == 'SUCCESS':
+            content_base64 = t112_data['data']['content']
+            content_decoded = base64.b64decode(content_base64).decode('ascii')
+
+            # convert to json
+            content_json = json.loads(content_decoded)
+            print(content_json)
+
+            if content_json.get('refundInvoiceNo') == None:
+                message = 'Credit note generated awaiting client approval'
+                uri = 'http://localhost:8000/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber
+                upex = requests.get(uri)
+
+                if upex.status_code == 200:
+                    message = 'Credit note generated awaiting client approval'
+                else:
+                    message = 'Credit note generated awaiting client approval + failed to update credit note id'
+
+            else:
+                refund_invoice_num = content_json['refundInvoiceNo']
+
+                print('Refund Invoice Number = '+refund_invoice_num)
+
+                # build interface T108 message
+                interface_t108_message = ('{'
+                        '"invoiceNo": "'+ refund_invoice_num +'"'
+                    '}')
+
+                # encode message to base64 bytes
+                message_bytes = interface_t108_message.encode('ascii')
+                # decode base64 bytes to string
+                base64_message = base64.b64encode(message_bytes).decode('ascii')
+
+                # complete T108 message
+                complete_t108_message = ('{'
+                        '"data": {'
+                        '"content": "'+base64_message+'",'
+                            '"signature": "",'
+                            '"dataDescription": {'
+                                '"codeType": "0",'
+                                '"encryptCode": "1",'
+                                '"zipCode": "0"'
+                           ' }},'
+                       ' "globalInfo": {'
+                            '"appId": "",'
+                            '"version": "1.1.20191201",'
+                            '"dataExchangeId": "9230489223014123",'
+                            '"interfaceCode": "T108",'
+                            '"requestCode": "TP",'
+                            '"requestTime": "'+datetime_str+'",'
+                            '"responseCode": "TA",'
+                            '"userName": "1000024517",'
+                            '"deviceMAC": "005056B65332",'
+                            '"deviceNo": "TCSff5ba51958634436",'
+                            '"tin": "1000024517",'
+                            '"brn": "",'
+                            '"taxpayerID": "1000024517",'
+                            '"longitude": "116.397128",'
+                            '"latitude": "39.916527",'
+                            '"extendField": {'
+                                '"responseDateFormat": "dd/MM/yyyy",'
+                                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
+                            '}'
+                        '},'
+                        '"returnStateInfo": {'
+                            '"returnCode": "",'
+                            '"returnMessage": ""'
+                       ' }'
+                    '}')
+
+                # convert message to json
+                interface_t108_json = json.loads(complete_t108_message)
+
+                t108_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t108_json)
+
+                if t108_upload.status_code == 200:
+                    t108_data = t108_upload.json()
+                    return_message = t108_data['returnStateInfo']['returnMessage']
+                    return_data = t108_data['data']
+
+                    if return_message == 'SUCCESS':
+                        content_base64 = t108_data['data']['content']
+                        content_decoded = base64.b64decode(content_base64).decode('ascii')
+
+                        # convert to json
+                        content_json = json.loads(content_decoded)
+
+                        # get fields
+                        verification_code = content_json['basicInformation']['antifakeCode']
+                        qrcode = content_json['summary']['qrCode']
+
+                        print('verification code = '+verification_code)
+                        print('qrcode = '+qrcode)
+
+                        #update credit note header
+                        uri = 'http://localhost:8000/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
+                        upex = requests.get(uri)
+
+                        if upex.status_code == 200:
+                            message = 'Credit note - credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code ('+ verification_code +') successfully updated in navision database'
+                        else:
+                            message = 'Failed to update credit note no('+ refund_invoice_num +'), Qrcode('+ qrcode +'), Credit Note ID ('+ credit_note_id +') and verification code('+ verification_code +') in navision database'
+
+    data = {
+                    'data': return_data,
+                    'externalDocNumber': '',
+                    'docNumber': '',
+                    'returnStateInfo': {
+                        'returnCode': '',
+                        'returnMessage': ''+message
+                    }
+                    
+                }
+    return JsonResponse(data, status=200)

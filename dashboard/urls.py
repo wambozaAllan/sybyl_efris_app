@@ -16,4 +16,7 @@ urlpatterns = [
     path('update_credit_note_header/', views.update_credit_note_header, name='update_credit_note_header'),
     path('search_invoice/', views.search_invoice, name='search_invoice'),
     path('search_credit_note/', views.search_credit_note, name='search_credit_note'),
+    path('update_credit_note_id/', views.update_credit_note_id, name='update_credit_note_id'),
+    path('update_credit_note_three/', views.update_credit_note_three, name='update_credit_note_three'),
+    path('dd/', views.dd, name='dd'),
 ]

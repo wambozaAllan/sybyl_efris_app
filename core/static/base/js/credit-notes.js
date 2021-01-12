@@ -7,7 +7,7 @@ $(document).ready(function(){
 
     function loadCreditNotes(page=1) {
         $.ajax({
-            url: "http://localhost/dashboard/load_credit_notes?page="+page,
+            url: "http://localhost:8000/dashboard/load_credit_notes?page="+page,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -28,16 +28,34 @@ $(document).ready(function(){
                 paginator.empty();
 
                 for(counter = 0; counter < data.length; counter++){
+                    let qrcode = data[counter].qrcode;
+                    let veriCode = data[counter].verificationCode;
+                    let refNo = data[counter].uraReferenceNo;
+                    let invoiceNo = data[counter].oriInvoiceNo;
+
+                    // pending = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode = '');
+                    // uploaded = (refNo != '' && invoiceNo != '' && veriCode != '' && qrcode != '');
 
                     let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data[counter].creditNoteNo+'"/></td>');
+                    // if(uploaded){
+                    //   var checkBox = $('<td class="text-center"></td>');
+                    // }
+                    // else if(pending){
+                    //   var checkBox = $('<td class="text-center"></td>');
+                    // }
+                    // else{
+                    // }
+
+                                          var checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data[counter].creditNoteNo+'"/></td>');
+
                     let rowCount = $('<td>'+ row +'</td>');
                     let creditNoteNo = $('<td>'+data[counter].creditNoteNo+'</td>');
                     let documentDate = $('<td>'+data[counter].applicationTime+'</td>');
                     let operator = $('<td>'+data[counter].operator+'</td>');
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
-                    let externalDocumentNumber = '<td>'+data[counter].externalDocumentNo+'</td>';
-                    let uraReferenceNo = '<td>'+data[counter].uraReferenceNo+'</td>';
+                    let oriInvoiceNo = '<td>'+ invoiceNo +'</td>';
+                    let uraReferenceNo = '<td>'+ refNo +'</td>';
+
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
@@ -45,13 +63,53 @@ $(document).ready(function(){
                     tablerow.append(documentDate);
                     tablerow.append(operator);
                     tablerow.append(customerName);
-                    tablerow.append(externalDocumentNumber);
+                    tablerow.append(oriInvoiceNo);
                     tablerow.append(uraReferenceNo);
+                       let action = $('<td><button type="button" title="'+data[counter].uraReferenceNo+'" class="btn btn-primary pending-btn" id="pending-client">Pending</button><input type="hidden" id="'+data[counter].uraReferenceNo+'" value="'+data[counter].creditNoteNo+'"></td>');
+ tablerow.append(action);
+                    // if(pending){
+                     
+                    // }
+                    // else if(refNo != '' && invoiceNo != '' && veriCode != '' && qrcode != ''){
+                    //   let action = $('<td>Uploaded</td>');
+                    //   tablerow.append(action);
+                    // }
+                    // else {
+                    //   let action = $('<td>Not Uploaded</td>');
+                    //   tablerow.append(action);
+                    // }
 
                     orderTableBody.append(tablerow)
 
                     row += 1;
                 }
+
+                $(document).on('click', '.pending-btn', function(event){
+                    var x = $(this).attr('title');
+                    var v = $('#'+x).val();
+
+                    $.ajax({
+                        url: "http://localhost:8000/dashboard/dd?credit_note_id="+x+"&v="+v,
+                        beforeSend: function(request) {
+                            console.log("before send");
+                        },
+                        success: function(result, status, xhr) {
+                          swal({
+                            title: '',
+                            text: ''+result.returnStateInfo.returnMessage,
+                            icon: 'success',
+                            button: {
+                              text: "Ok",
+                              value: true,
+                              visible: true,
+                              className: "btn btn-primary"
+                            }
+                          })
+                        },
+                      });
+                    console.log(x);
+                    event.stopImmediatePropagation();
+                });
 
                 if(previousPage) {
                     let x = currentPage - 1;
@@ -112,7 +170,7 @@ $(document).ready(function(){
 
      function searchCreditNote(doc_num) {
         $.ajax({
-            url: "http://localhost/dashboard/search_credit_note?doc_num="+doc_num,
+            url: "http://localhost:8000/dashboard/search_credit_note?doc_num="+doc_num,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -220,7 +278,7 @@ $(document).ready(function(){
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost/dashboard/upload_credit_note?documentNumber="+documentNumber,
+                url: "http://localhost:8000/dashboard/upload_credit_note?documentNumber="+documentNumber,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");
