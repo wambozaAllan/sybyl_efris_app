@@ -9,7 +9,7 @@
 {% include 'core/left_sidebar.html' %}
 
 <div class="main-panel">
-    <input type="hidden" id="service_name" value="item credit notes"/>
+    <input type="hidden" id="service_name" value="service invoices"/>
     <div class="content-wrapper">
         <div class="dashboard-header d-flex flex-column grid-margin">
             <div class="d-flex align-items-center justify-content-between flex-wrap border-bottom pb-3 mb-3">
@@ -17,7 +17,7 @@
                     <div class="d-none d-md-flex">
                         <p class="text-muted mb-0 tx-13 cursor-pointer">Dashboard</p>
                         <i class="mdi mdi-chevron-right text-muted"></i>
-                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'credit_notes' %}">{{ page }}</a></p>
+                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'service_invoices' %}">{{ page }}</a></p>
                     </div>
                 </div>
                 <div class="button-wrapper d-flex align-items-center mt-md-3 mt-xl-0">
@@ -34,23 +34,26 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row" style="margin-bottom: 2%;">
-                            <div class="col-xl-4">
-                                <input type="text" class="form-control" id="credit-note-number" placeholder="Credit Note Number" />
+                            <div class="col-xl-6">
+                                <input type="text" class="form-control" id="document-number"
+                                    placeholder="Navision Invoice Number" />
                             </div>
                             <div class="col-xl-4">
-                                <button type="button" class="btn btn-primary" id="search-credit-notes">Search</button>
+                                <button type="button" class="btn btn-primary" id="search-invoices">Search</button>
                             </div>
                         </div>
                         <div>
-                            <button type="button" class="btn btn-primary" id="upload-credit-notes">Upload Credit Note</button>
+                            <button type="button" class="btn btn-primary" id="upload-invoices">Generate E-
+                                Invoice(s)</button>
+                                <span id="e-loader" style="margin-left: 10px; width: 20px; height: 20px; display: none;" class="circle-loader"></span>
                         </div>
 
                         <div class="table-responsive pt-3">
-                            <table class="table table-bordered dataTable" id="credit-notes-table">
+                            <table class="table table-bordered dataTable" id="invoices-table">
                                 <thead>
                                     <tr>
                                         <th class="text-center">
-                                            <input type="checkbox" id="c"/>
+                                            <input type="checkbox" id="check-all-invoices"/>
                                         </th>
                                         <th>
                                             #
@@ -65,6 +68,9 @@
                                             Sales Person
                                         </th>
                                         <th>
+                                            Document Type
+                                        </th>
+                                        <th>
                                             Customer Name
                                         </th>
                                         <th>
@@ -72,13 +78,13 @@
                                         </th>
                                         <th>
                                             URA Ref Num
-                                        </th> 
+                                        </th>
                                         <th>
                                             Action
                                         </th> 
                                     </tr>
                                 </thead>
-                                <tbody id="credit-notes-table-body">
+                                <tbody id="order-table-body">
 
                                 </tbody>
                                 
@@ -99,7 +105,7 @@
             </div>
         </div>
 
-    </div>
+    </div> 
     <!-- content-wrapper ends -->
     {% include 'core/footer.html' %}
 </div>
@@ -109,5 +115,5 @@
 {% block scripts %}
 <script src="{% static 'base/js/base.js' %}"></script>
 <script src="{% static 'vendor/js/sweetalert.min.js' %}"></script>
-<script src="{% static 'base/js/credit-notes.js' %}"></script>
+<script src="{% static 'base/js/service_invoices.js' %}"></script>
 {% endblock %}

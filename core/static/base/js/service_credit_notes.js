@@ -8,7 +8,7 @@ $(document).ready(function(){
 
     function loadCreditNotes(page=1) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/load_credit_notes?page="+page,
+            url: "http://localhost:8000/dashboard/load_service_credit_notes?page="+page,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -179,7 +179,7 @@ $(document).ready(function(){
 
      function searchCreditNote(doc_num) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/search_credit_note?doc_num="+doc_num,
+            url: "http://localhost:8000/dashboard/search_service_credit_note?doc_num="+doc_num,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -226,7 +226,7 @@ $(document).ready(function(){
             error: function(xhr, textStatus, errorMessage) {
                 swal({
                             title: 'Error Occurred',
-                            text: 'No invoice record found',
+                            text: 'No credit note record found',
                             icon: 'error',
                             button: {
                               text: "Ok",

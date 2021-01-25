@@ -12,15 +12,80 @@ from decimal import *
 
 TWO_DECIMAL_PLACES = Decimal('0.00')
 
+# build interface message method
+def build_interface_message(base64_message, interface_code):
+    now = datetime.now()
+    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
+
+    interface_message = ('{'
+        '"data": {'
+        '"content": "'+ base64_message +'",'
+            '"signature": "",'
+            '"dataDescription": {'
+                '"codeType": "0",'
+                '"encryptCode": "1",'
+                '"zipCode": "0"'
+           ' }},'
+       ' "globalInfo": {'
+            '"appId": "AP04",'
+            '"version": "1.1.20191201",'
+            '"dataExchangeId": "9230489223014123",'
+            '"interfaceCode": "'+ interface_code +'",'
+            '"requestCode": "TP",'
+            '"requestTime": "'+ datetime_str +'",'
+            '"responseCode": "TA",'
+            '"userName": "1000024517",'
+            '"deviceMAC": "005056B65332",'
+            '"deviceNo": "TCSff5ba51958634436",'
+            '"tin": "1000024517",'
+            '"brn": "",'
+            '"taxpayerID": "1000024517",'
+            '"longitude": "116.397128",'
+            '"latitude": "39.916527",'
+            '"extendField": {'
+                '"responseDateFormat": "dd/MM/yyyy",'
+                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
+            '}'
+        '},'
+        '"returnStateInfo": {'
+            '"returnCode": "",'
+            '"returnMessage": ""'
+       ' }'
+    '}')
+
+    interface_message = json.loads(interface_message)
+
+    return interface_message
+
+def build_base64_string(message):
+    # encode message to base64 bytes
+    message_bytes = message.encode('ascii')
+    # decode base64 bytes to string
+    base64_string = base64.b64encode(message_bytes).decode('ascii')
+
+    return base64_string
+
 def credit_notes(request):
     context = {
         'page': 'Credit Notes',
     }
     return render(request, 'dashboard/credit-notes.html', context)
 
+def service_credit_notes(request):
+    context = {
+        'page': 'Service Credit Notes',
+    }
+    return render(request, 'dashboard/service_credit_notes.html', context)
+
+def service_invoices(request):
+    context = {
+        'page': 'Service Invoices',
+    }
+    return render(request, 'dashboard/service_invoices.html', context)
+
 def invoices(request):
     context = {
-        'page': 'Invoices',
+        'page': 'Item Invoices',
     }
     return render(request, 'dashboard/invoices.html', context)
 
@@ -70,6 +135,61 @@ def load_invoices(request):
     else: 
         return JsonResponse(data, status=400)
 
+def load_service_invoices(request):
+    url = 'http://localhost:8280/services/sybyl-efris/getAllServiceInvoiceHeaders'
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        data = response.json()
+
+        # pagination logic
+        paginator = Paginator(data['invoiceHeaders']['header'], 10)
+        page = request.GET.get('page')
+
+        invoices_page = paginator.page(page)
+
+        pagination_data = {
+            'invoices': invoices_page.object_list,
+            'current_page': page,
+            'num_pages': paginator.num_pages,
+            'next_page': invoices_page.has_next(),
+            'previous_page': invoices_page.has_previous(),
+        }
+
+        print(pagination_data)
+
+        return JsonResponse(pagination_data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
+def load_invoices(request):
+    url = 'http://localhost:8280/services/sybyl-efris/getAllInvoiceHeaders'
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        data = response.json()
+
+        # pagination logic
+        paginator = Paginator(data['invoiceHeaders']['header'], 10)
+        page = request.GET.get('page')
+
+        invoices_page = paginator.page(page)
+
+        pagination_data = {
+            'invoices': invoices_page.object_list,
+            'current_page': page,
+            'num_pages': paginator.num_pages,
+            'next_page': invoices_page.has_next(),
+            'previous_page': invoices_page.has_previous(),
+        }
+
+        print(pagination_data)
+
+        return JsonResponse(pagination_data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
 
 def load_credit_notes(request):
     url = 'http://localhost:8280/services/sybyl-efris/getAllCreditNoteHeaders'
@@ -99,6 +219,33 @@ def load_credit_notes(request):
     else: 
         return JsonResponse(data, status=400)
 
+def load_service_credit_notes(request):
+    url = 'http://localhost:8280/services/sybyl-efris/getAllServiceCreditNoteHeaders'
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        data = response.json()
+
+        # pagination logic
+        paginator = Paginator(data['creditNoteHeaders']['header'], 10)
+        page = request.GET.get('page')
+
+        credit_notes_page = paginator.page(page)
+
+        pagination_data = {
+            'credit_notes': credit_notes_page.object_list,
+            'current_page': page,
+            'num_pages': paginator.num_pages,
+            'next_page': credit_notes_page.has_next(),
+            'previous_page': credit_notes_page.has_previous(),
+        }
+
+        print(pagination_data)
+
+        return JsonResponse(pagination_data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
 
 def load_company_info(request):
     url = 'http://localhost:8280/services/sybyl-efris/getCompanyInformation'
@@ -226,9 +373,18 @@ def update_credit_note_header(request):
 
 def upload_invoice(request):
     documentNumber = request.GET['documentNumber']
+    service_name = request.GET['service_name']
+    specific_invoice_header_url = ''
+    specific_invoice_lines_url = ''
+
+    if service_name == 'item invoices':
+        specific_invoice_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificInvoiceHeader?documentNumber='+documentNumber
+        specific_invoice_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificInvoiceLines?documentNumber='+documentNumber
+    else:
+        specific_invoice_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceInvoiceHeader?documentNumber='+documentNumber
+        specific_invoice_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceInvoiceLines?documentNumber='+documentNumber
+
     data = {}
-    now = datetime.now()
-    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
     #####################################################################################################
     company_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCompanyInformation', headers={'Accept':'application/json'})
@@ -240,13 +396,12 @@ def upload_invoice(request):
         print('error')
 
     #####################################################################################################
-    document_header_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificInvoiceHeader?documentNumber='+documentNumber, headers={'Accept':'application/json'})
+    document_header_response = requests.get(specific_invoice_header_url, headers={'Accept':'application/json'})
 
     if document_header_response.status_code == 200:
         document_header_data = document_header_response.json()
         partdata = document_header_data['invoiceHeader']['header'][0]
-
-        #
+        ref_no = partdata['antifakeCode']
 
         seller_details = ('"sellerDetails": {'
         '"tin":"' + company_data['company']['details'][0]['tin'] + '",'
@@ -258,7 +413,7 @@ def upload_invoice(request):
         '"linePhone":"' + company_data['company']['details'][0]['linePhone'] + '",'
         '"emailAddress":"' + company_data['company']['details'][0]['emailAddress'] + '",'
         '"placeOfBusiness":"' + company_data['company']['details'][0]['placeOfBusiness'] + '",'
-        '"referenceNo":"'+ partdata['antifakeCode'] +'",'
+        '"referenceNo":"'+ ref_no +'",'
         '"branchId":"' + company_data['company']['details'][0]['branchId'] + '"'
         '}')
 
@@ -281,16 +436,15 @@ def upload_invoice(request):
         '"isBatch": "0"'
         '}')
 
-        print('basic information', basic_information)
     else: 
         print('error')
 
     #######################################################################################################
-    document_lines_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificInvoiceLines?documentNumber='+documentNumber, headers={'Accept':'application/json'})
+    document_lines_response = requests.get(specific_invoice_lines_url, headers={'Accept':'application/json'})
 
     if document_lines_response.status_code == 200:
-        document_lines_data = document_lines_response.json()
         counter = 0
+        document_lines_data = document_lines_response.json()
         partdata =  document_lines_data['invoiceLines']['line']
         number_of_lines = len(partdata)
         number_of_items = 0   
@@ -326,7 +480,7 @@ def upload_invoice(request):
 
             total_amount = (total_amount + (Decimal(partdata[counter]['total']))).quantize(TWO_DECIMAL_PLACES)
 
-            # discount totl
+            # discount total
             discount_total = ''
             discount_flag = partdata[counter]['discountFlag']
 
@@ -337,6 +491,7 @@ def upload_invoice(request):
             #########################################################################
 
             unit_of_measure = partdata[counter]['unitOfMeasure']
+
             if unit_of_measure == 'UNIT':
                 unit_of_measure = 'UN'
             elif unit_of_measure == 'PIECES':
@@ -348,33 +503,34 @@ def upload_invoice(request):
                 item_name = item+' (Deemed)'
             else:
                 item_name = item
+
             goodsDetailsBody = ('{'
-            '"item": "'+ item_name +'",'
-            '"itemCode": "'+ partdata[counter]['itemCode'] +'",'
-            '"qty": "'+ str(int(Decimal(partdata[counter]['qty']))) +'",'
-            '"unitOfMeasure": "'+ unit_of_measure +'",'
-            '"unitPrice": "'+ str((Decimal(partdata[counter]['unitPrice']) + Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
-            '"total": "'+ str((Decimal(partdata[counter]['unitPrice']) + (Decimal(tax) * int(Decimal(partdata[counter]['qty'])))).quantize(TWO_DECIMAL_PLACES)) +'",'
-            '"taxRate": "'+ tax_rate +'",'
-            '"tax": "'+ tax +'",'
-            '"discountTotal": "'+ discount_total +'",'
-            '"discountTaxRate": "'+ str(Decimal(partdata[counter]['discountTaxRate']).quantize(TWO_DECIMAL_PLACES)) +'",'
-            '"orderNumber": "'+ str(counter) +'",'
-            '"discountFlag": "'+ partdata[counter]['discountFlag']+ '",'
-            '"deemedFlag": "'+ partdata[counter]['deemedFlag'] +'",'
-            '"exciseFlag": "'+ partdata[counter]['exciseFlag'] +'",'
-            '"categoryId": "",'
-            '"categoryName": "",'
-            '"goodsCategoryId": "'+ str(partdata[counter]['goodsCategoryId']) +'",'
-            '"goodsCategoryName": "",'
-            '"exciseRate": "",'
-            '"exciseRule": "",'
-            '"exciseTax": "",'
-            '"pack": "",'
-            '"stick": "",'
-            '"exciseUnit": "",'
-            '"exciseCurrency": "",'
-            '"exciseRateName": ""'
+                                    '"item": "'+ item_name +'",'
+                                    '"itemCode": "'+ partdata[counter]['itemCode'] +'",'
+                                    '"qty": "'+ str(int(Decimal(partdata[counter]['qty']))) +'",'
+                                    '"unitOfMeasure": "'+ unit_of_measure +'",'
+                                    '"unitPrice": "'+ str((Decimal(partdata[counter]['unitPrice']) + Decimal(tax)).quantize(TWO_DECIMAL_PLACES)) +'",'
+                                    '"total": "'+ str((Decimal(partdata[counter]['unitPrice']) + (Decimal(tax) * int(Decimal(partdata[counter]['qty'])))).quantize(TWO_DECIMAL_PLACES)) +'",'
+                                    '"taxRate": "'+ tax_rate +'",'
+                                    '"tax": "'+ tax +'",'
+                                    '"discountTotal": "'+ discount_total +'",'
+                                    '"discountTaxRate": "'+ str(Decimal(partdata[counter]['discountTaxRate']).quantize(TWO_DECIMAL_PLACES)) +'",'
+                                    '"orderNumber": "'+ str(counter) +'",'
+                                    '"discountFlag": "'+ partdata[counter]['discountFlag']+ '",'
+                                    '"deemedFlag": "'+ partdata[counter]['deemedFlag'] +'",'
+                                    '"exciseFlag": "'+ partdata[counter]['exciseFlag'] +'",'
+                                    '"categoryId": "",'
+                                    '"categoryName": "",'
+                                    '"goodsCategoryId": "'+ str(partdata[counter]['goodsCategoryId']) +'",'
+                                    '"goodsCategoryName": "",'
+                                    '"exciseRate": "",'
+                                    '"exciseRule": "",'
+                                    '"exciseTax": "",'
+                                    '"pack": "",'
+                                    '"stick": "",'
+                                    '"exciseUnit": "",'
+                                    '"exciseCurrency": "",'
+                                    '"exciseRateName": ""'
             '}')
 
             if counter != number_of_lines - 1:
@@ -406,6 +562,7 @@ def upload_invoice(request):
         print('error')
 
     buyer_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCustomerInformation?customerNo='+customerNumber, headers={'Accept': 'application/json'})
+
     if buyer_infor_response.status_code == 200:
         buyer_infor_data = buyer_infor_response.json()
         if(bool(buyer_infor_data['customer'])):
@@ -477,53 +634,11 @@ def upload_invoice(request):
     print(upload_invoice_message)
     print('--------------------------------------------------------------------')
 
-    # encode message to base64 bytes
-    message_bytes = upload_invoice_message.encode('ascii')
-    # decode base64 bytes to string
-    base64_message = base64.b64encode(message_bytes).decode('ascii')
+    interface_code = 'T109'
+    base64_message = build_base64_string(upload_invoice_message)
+    interface_message = build_interface_message(base64_message, interface_code)
 
-    d = ('{'
-        '"data": {'
-        '"content": "'+base64_message+'",'
-            '"signature": "",'
-            '"dataDescription": {'
-                '"codeType": "0",'
-                '"encryptCode": "1",'
-                '"zipCode": "0"'
-           ' }},'
-       ' "globalInfo": {'
-            '"appId": "",'
-            '"version": "1.1.20191201",'
-            '"dataExchangeId": "9230489223014123",'
-            '"interfaceCode": "T109",'
-            '"requestCode": "TP",'
-            '"requestTime": "'+datetime_str+'",'
-            '"responseCode": "TA",'
-            '"userName": "1000024517",'
-            '"deviceMAC": "005056B65332",'
-            '"deviceNo": "TCSff5ba51958634436",'
-            '"tin": "1000024517",'
-            '"brn": "",'
-            '"taxpayerID": "1000024517",'
-            '"longitude": "116.397128",'
-            '"latitude": "39.916527",'
-            '"extendField": {'
-                '"responseDateFormat": "dd/MM/yyyy",'
-                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-            '}'
-        '},'
-        '"returnStateInfo": {'
-            '"returnCode": "",'
-            '"returnMessage": ""'
-       ' }'
-    '}')
-    print('--------------------------------------------------------------------')
-    print(d)
-    print('--------------------------------------------------------------------')
-
-    y = json.loads(d)
-
-    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
+    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_message)
 
     if finalupload.status_code == 200:
         finaluploaddata = finalupload.json()
@@ -537,20 +652,18 @@ def upload_invoice(request):
             content_base64 = finaluploaddata['data']['content']
             content_decoded = base64.b64decode(content_base64).decode('ascii')
 
-        #     # convert to json
+            # convert to json
             content_json = json.loads(content_decoded)
 
-        #     # get the invoice number
+            # get the invoice number
             invoice_number = content_json['basicInformation']['invoiceNo']
             qrcode = content_json['summary']['qrCode']
             ura_ref_no = content_json['basicInformation']['invoiceId']
             verification_code = content_json['basicInformation']['antifakeCode']
-            print('invoice number = ', invoice_number)
-            print('qrcode = ', qrcode)
 
             #update external document number
             uri = 'http://localhost:8000/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code
-            print('.....'+uri)
+
             upex = requests.get(uri)
 
             if upex.status_code == 200:
@@ -560,7 +673,7 @@ def upload_invoice(request):
 
         data = {
                     'data': return_data,
-                    'externalDocNumber': 'hello',
+                    'externalDocNumber': '',
                     'docNumber': ''+documentNumber,
                     'returnStateInfo': {
                         'returnCode': ''+str(return_code),
@@ -578,22 +691,35 @@ def upload_invoice(request):
 
 def upload_credit_note(request):
     documentNumber = request.GET['documentNumber']
+    service_name = request.GET['service_name']
+    specific_credit_note_header_url = ''
+    specific_credit_note_lines_url = ''
+
+    if service_name == 'item credit notes':
+        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?documentNumber='+documentNumber
+        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteLines?documentNumber='+documentNumber
+    else:
+        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteHeader?documentNumber='+documentNumber
+        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteLines?documentNumber='+documentNumber
+
     data = {}
     now = datetime.now()
     datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
-    document_header_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?creditNoteNo='+documentNumber, headers={'Accept':'application/json'})
+    document_header_response = requests.get(specific_credit_note_header_url, headers={'Accept':'application/json'})
 
     if document_header_response.status_code == 200:
         document_header_data = document_header_response.json()
         print(document_header_data)
         partdata = document_header_data['creditNoteHeader']['header'][0]
 
-        orginal_invoice_num = partdata['oriInvoiceNo'];
+        orginal_invoice_num = partdata['oriInvoiceNo']
         document_date = dateutil.parser.parse(partdata['applicationTime']) 
         currency = "UGX" if not partdata['currency'] else partdata['currency']
         application_time = document_date.strftime('%Y-%m-%d %H:%M:%S')
         orginal_invoice_id = ''
+        seller_ref_num = partdata['creditNoteNo']
+
         if partdata['uraReferenceNo'] == '':
             orginal_invoice_id = '618344974134880543'
         else:
@@ -613,11 +739,11 @@ def upload_credit_note(request):
                 '"contactEmail": "",'
                 '"source": "101",'
                 '"remarks": "",'
-                '"sellersReferenceNo": "",')
+                '"sellersReferenceNo": "'+ seller_ref_num +'",')
     else: 
         print('error')
 
-    document_lines_response = requests.get('http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteLines?creditNoteNo='+documentNumber, headers={'Accept':'application/json'})
+    document_lines_response = requests.get(specific_credit_note_lines_url, headers={'Accept':'application/json'})
 
     if document_lines_response.status_code == 200:
         document_lines_data = document_lines_response.json()
@@ -764,50 +890,11 @@ def upload_credit_note(request):
 
     print(credit_note_message)
 
-    # encode message to base64 bytes
-    message_bytes = credit_note_message.encode('ascii')
-    # decode base64 bytes to string
-    base64_message = base64.b64encode(message_bytes).decode('ascii')
+    interface_code = 'T110'
+    base64_message = build_base64_string(credit_note_message)
+    interface_message = build_interface_message(base64_message, interface_code)
 
-    d = ('{'
-        '"data": {'
-        '"content": "'+base64_message+'",'
-            '"signature": "",'
-            '"dataDescription": {'
-                '"codeType": "0",'
-                '"encryptCode": "1",'
-                '"zipCode": "0"'
-           ' }},'
-       ' "globalInfo": {'
-            '"appId": "",'
-            '"version": "1.1.20191201",'
-            '"dataExchangeId": "9230489223014123",'
-            '"interfaceCode": "T110",'
-            '"requestCode": "TP",'
-            '"requestTime": "'+datetime_str+'",'
-            '"responseCode": "TA",'
-            '"userName": "1000024517",'
-            '"deviceMAC": "005056B65332",'
-            '"deviceNo": "TCSff5ba51958634436",'
-            '"tin": "1000024517",'
-            '"brn": "",'
-            '"taxpayerID": "1000024517",'
-            '"longitude": "116.397128",'
-            '"latitude": "39.916527",'
-            '"extendField": {'
-                '"responseDateFormat": "dd/MM/yyyy",'
-                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-            '}'
-        '},'
-        '"returnStateInfo": {'
-            '"returnCode": "",'
-            '"returnMessage": ""'
-       ' }'
-    '}')
-
-    y = json.loads(d)
-
-    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=y)
+    finalupload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_message)
 
     if finalupload.status_code == 200:
         finaluploaddata = finalupload.json()
@@ -825,8 +912,6 @@ def upload_credit_note(request):
             content_json = json.loads(content_decoded)
             reference_num = content_json['referenceNo']
 
-            print('Reference Number = '+reference_num)
-
             # build interface T111 message
             interface_t111_message = ('{'
                     '"referenceNo": "'+ reference_num +'",'
@@ -842,62 +927,21 @@ def upload_credit_note(request):
                     '"pageSize": "10"'
                 '}')
 
-            print('interface_t111_message = '+interface_t111_message)
-
             # encode message to base64 bytes
             message_bytes = interface_t111_message.encode('ascii')
             # decode base64 bytes to string
             base64_message = base64.b64encode(message_bytes).decode('ascii')
 
-            # complete T111 message
-            complete_t111_message = ('{'
-                    '"data": {'
-                    '"content": "'+base64_message+'",'
-                        '"signature": "",'
-                        '"dataDescription": {'
-                            '"codeType": "0",'
-                            '"encryptCode": "1",'
-                            '"zipCode": "0"'
-                       ' }},'
-                   ' "globalInfo": {'
-                        '"appId": "",'
-                        '"version": "1.1.20191201",'
-                        '"dataExchangeId": "9230489223014123",'
-                        '"interfaceCode": "T111",'
-                        '"requestCode": "TP",'
-                        '"requestTime": "'+datetime_str+'",'
-                        '"responseCode": "TA",'
-                        '"userName": "1000024517",'
-                        '"deviceMAC": "005056B65332",'
-                        '"deviceNo": "TCSff5ba51958634436",'
-                        '"tin": "1000024517",'
-                        '"brn": "",'
-                        '"taxpayerID": "1000024517",'
-                        '"longitude": "116.397128",'
-                        '"latitude": "39.916527",'
-                        '"extendField": {'
-                            '"responseDateFormat": "dd/MM/yyyy",'
-                            '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-                        '}'
-                    '},'
-                    '"returnStateInfo": {'
-                        '"returnCode": "",'
-                        '"returnMessage": ""'
-                   ' }'
-                '}')
+            interface_code = 'T111'
+            base64_message = build_base64_string(interface_t111_message)
+            interface_message = build_interface_message(base64_message, interface_code)
 
-            # convert message to json
-            interface_t111_json = json.loads(complete_t111_message)
-
-            t111_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t111_json)
+            t111_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_message)
 
             if t111_upload.status_code == 200:
                 t111_data = t111_upload.json()
                 return_message = t111_data['returnStateInfo']['returnMessage']
                 return_data = t111_data['data']
-
-                print('return message = '+return_message)
-                print(return_data)
 
                 if return_message == 'SUCCESS':
                     content_base64 = t111_data['data']['content']
@@ -907,59 +951,16 @@ def upload_credit_note(request):
                     content_json = json.loads(content_decoded)
                     credit_note_id = content_json['records'][0]['id']
 
-                    print('Credit Note ID = '+credit_note_id)
-
                     # build interface T112 message
                     interface_t112_message = ('{'
                             '"id": "'+ credit_note_id +'"'
                         '}')
 
-                    # encode message to base64 bytes
-                    message_bytes = interface_t112_message.encode('ascii')
-                    # decode base64 bytes to string
-                    base64_message = base64.b64encode(message_bytes).decode('ascii')
+                    interface_code = 'T112'
+                    base64_message = build_base64_string(interface_t112_message)
+                    interface_message = build_interface_message(base64_message, interface_code)
 
-                    # complete T112 message
-                    complete_t112_message = ('{'
-                            '"data": {'
-                            '"content": "'+base64_message+'",'
-                                '"signature": "",'
-                                '"dataDescription": {'
-                                    '"codeType": "0",'
-                                    '"encryptCode": "1",'
-                                    '"zipCode": "0"'
-                               ' }},'
-                           ' "globalInfo": {'
-                                '"appId": "",'
-                                '"version": "1.1.20191201",'
-                                '"dataExchangeId": "9230489223014123",'
-                                '"interfaceCode": "T112",'
-                                '"requestCode": "TP",'
-                                '"requestTime": "'+datetime_str+'",'
-                                '"responseCode": "TA",'
-                                '"userName": "1000024517",'
-                                '"deviceMAC": "005056B65332",'
-                                '"deviceNo": "TCSff5ba51958634436",'
-                                '"tin": "1000024517",'
-                                '"brn": "",'
-                                '"taxpayerID": "1000024517",'
-                                '"longitude": "116.397128",'
-                                '"latitude": "39.916527",'
-                                '"extendField": {'
-                                    '"responseDateFormat": "dd/MM/yyyy",'
-                                    '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-                                '}'
-                            '},'
-                            '"returnStateInfo": {'
-                                '"returnCode": "",'
-                                '"returnMessage": ""'
-                           ' }'
-                        '}')
-
-                    # convert message to json
-                    interface_t112_json = json.loads(complete_t112_message)
-
-                    t112_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t112_json)
+                    t112_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_message)
 
                     if t112_upload.status_code == 200:
                         t112_data = t112_upload.json()
@@ -972,7 +973,6 @@ def upload_credit_note(request):
 
                             # convert to json
                             content_json = json.loads(content_decoded)
-                            print(content_json)
                             
                             if content_json.get('refundInvoiceNo') == None:
                                 message = 'Credit note generated awaiting client approval'
@@ -987,59 +987,16 @@ def upload_credit_note(request):
                             else:
                                 refund_invoice_num = content_json['refundInvoiceNo']
 
-                                print('Refund Invoice Number = '+refund_invoice_num)
-
                                 # build interface T108 message
                                 interface_t108_message = ('{'
                                         '"invoiceNo": "'+ refund_invoice_num +'"'
                                     '}')
 
-                                # encode message to base64 bytes
-                                message_bytes = interface_t108_message.encode('ascii')
-                                # decode base64 bytes to string
-                                base64_message = base64.b64encode(message_bytes).decode('ascii')
+                                interface_code = 'T108'
+                                base64_message = build_base64_string(interface_t108_message)
+                                interface_message = build_interface_message(base64_message, interface_code)
 
-                                # complete T108 message
-                                complete_t108_message = ('{'
-                                        '"data": {'
-                                        '"content": "'+base64_message+'",'
-                                            '"signature": "",'
-                                            '"dataDescription": {'
-                                                '"codeType": "0",'
-                                                '"encryptCode": "1",'
-                                                '"zipCode": "0"'
-                                           ' }},'
-                                       ' "globalInfo": {'
-                                            '"appId": "",'
-                                            '"version": "1.1.20191201",'
-                                            '"dataExchangeId": "9230489223014123",'
-                                            '"interfaceCode": "T108",'
-                                            '"requestCode": "TP",'
-                                            '"requestTime": "'+datetime_str+'",'
-                                            '"responseCode": "TA",'
-                                            '"userName": "1000024517",'
-                                            '"deviceMAC": "005056B65332",'
-                                            '"deviceNo": "TCSff5ba51958634436",'
-                                            '"tin": "1000024517",'
-                                            '"brn": "",'
-                                            '"taxpayerID": "1000024517",'
-                                            '"longitude": "116.397128",'
-                                            '"latitude": "39.916527",'
-                                            '"extendField": {'
-                                                '"responseDateFormat": "dd/MM/yyyy",'
-                                                '"responseTimeFormat": "dd/MM/yyyy HH:mm:ss"'
-                                            '}'
-                                        '},'
-                                        '"returnStateInfo": {'
-                                            '"returnCode": "",'
-                                            '"returnMessage": ""'
-                                       ' }'
-                                    '}')
-
-                                # convert message to json
-                                interface_t108_json = json.loads(complete_t108_message)
-
-                                t108_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_t108_json)
+                                t108_upload = requests.post('http://192.168.0.232:9880/efristcs/ws/tcsapp/getInformation', json=interface_message)
 
                                 if t108_upload.status_code == 200:
                                     t108_data = t108_upload.json()
@@ -1057,9 +1014,6 @@ def upload_credit_note(request):
                                         verification_code = content_json['basicInformation']['antifakeCode']
                                         qrcode = content_json['summary']['qrCode']
 
-                                        print('verification code = '+verification_code)
-                                        print('qrcode = '+qrcode)
-
                                         #update credit note header
                                         uri = 'http://localhost:8000/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
                                         upex = requests.get(uri)
@@ -1074,7 +1028,6 @@ def upload_credit_note(request):
 
         data = {
                     'data': return_data,
-                    'externalDocNumber': 'hello',
                     'docNumber': ''+documentNumber,
                     'returnStateInfo': {
                         'returnCode': ''+return_code,
@@ -1098,9 +1051,37 @@ def search_invoice(request):
     else: 
         return JsonResponse(data, status=400)
 
+def search_service_invoice(request):
+    doc_num = request.GET.get('doc_num')
+    url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceInvoiceHeader?documentNumber='+doc_num
+
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        data = response.json()
+
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
 def search_credit_note(request):
     doc_num = request.GET.get('doc_num')
     url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?creditNoteNo='+doc_num
+
+    response = requests.get(url, headers={'Accept':'application/json'})
+    data = {}
+    if response.status_code == 200:
+        data = response.json()
+
+        return JsonResponse(data, status=200)
+    
+    else: 
+        return JsonResponse(data, status=400)
+
+def search_service_credit_note(request):
+    doc_num = request.GET.get('doc_num')
+    url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteHeader?creditNoteNo='+doc_num
 
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}

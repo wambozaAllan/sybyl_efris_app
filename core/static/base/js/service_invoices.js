@@ -1,19 +1,19 @@
 $(document).ready(function(){
-    var orderTableBody = $("#credit-notes-table-body");
-    var uploadCreditNotesBtn = $("#upload-credit-notes");
+    var orderTableBody = $("#order-table-body");
+    var uploadInvoiceBtn = $("#upload-invoices");
     var paginator = $("#paginator");
-    var searchCreditNoteBtn = $('#search-credit-notes');
-    var searchCreditNoteTextField = $('#credit-note-number');
+    var searchInvoiceBtn = $('#search-invoices');
+    var searchInvoiceTextField = $('#document-number');
     let serviceName = $('#service_name').val();
 
-    function loadCreditNotes(page=1) {
+    function loadInvoices(page=1) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/load_credit_notes?page="+page,
+            url: "http://localhost:8000/dashboard/load_service_invoices?page="+page,
             beforeSend: function(request) {
                 console.log("before send");
             },
             success: function(result, status, xhr) {
-                var data = result.credit_notes;
+                var data = result.invoices
                 var currentPage = parseInt(result.current_page);
                 var numPages = parseInt(result.num_pages);
                 var nextPage = result.next_page;
@@ -21,7 +21,6 @@ $(document).ready(function(){
                 var row = (currentPage * 10) - 10 + 1;
                 var y = currentPage;
                 var stop = 0;
-
                 console.log("success");
                 $('#docs-loader').hide();
 
@@ -29,57 +28,47 @@ $(document).ready(function(){
                 paginator.empty();
 
                 for(counter = 0; counter < data.length; counter++){
-                    let qrcode = data[counter].qrcode;
-                    let veriCode = data[counter].verificationCode;
-                    let refNo = data[counter].uraReferenceNo;
-                    let invoiceNo = data[counter].oriInvoiceNo;
-                    let externalDocumentNo = data[counter].externalDocumentNo;
+                  let qrcode = data[counter].uraQrcode;
+                  let veriCode = data[counter].verificationCode;
+                  let oriInvoiceI = data[counter].oriInvoiceId;
+                  let invoiceNo = data[counter].uraOriginalInvoiceNo;
+                    
+                  let checkBox = null;
+                  let action = null;
+                  let color = "";
+                  let uploaded = (oriInvoiceI != '' && invoiceNo != '' && veriCode != '' && qrcode != '');
 
-                    let checkBox = null;
-                    let action = null;
-                    let color = "";
+                  let tablerow = $('<tr></tr>');
 
-                    let pending = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode != '' && externalDocumentNo == '');
-                    let uploaded = (refNo != '' && invoiceNo != '' && veriCode != '' && qrcode != '' && externalDocumentNo != '');
-
-                    let tablerow = $('<tr></tr>');
-
-                    if(uploaded){
-                      checkBox = $('<td class="text-center"></td>');
-                      tablerow.addClass("table-success");
-                    }
-                    else if(pending){
-                      checkBox = $('<td class="text-center"></td>');
-                      tablerow.addClass("table-warning");
-                    }
-                    else{
-                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data[counter].creditNoteNo+'"/></td>');
-                      tablerow.addClass("table-info");
-                    }
+                  if(uploaded){
+                    checkBox = $('<td class="text-center"></td>');
+                    tablerow.addClass("table-success");
+                  }
+                  else{
+                    checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data[counter].antifakeCode+'"/></td>');
+                    tablerow.addClass("table-info");
+                  }
 
                     let rowCount = $('<td>'+ row +'</td>');
-                    let creditNoteNo = $('<td>'+data[counter].creditNoteNo+'</td>');
-                    let documentDate = $('<td>'+data[counter].applicationTime+'</td>');
+                    let antifakeCode = $('<td>'+data[counter].antifakeCode+'</td>');
+                    let documentDate = $('<td>'+data[counter].documentDate+'</td>');
                     let operator = $('<td>'+data[counter].operator+'</td>');
+                    let invoiceType = $('<td>'+data[counter].invoiceType+'</td>');
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
-                    let oriInvoiceNo = '<td>'+ invoiceNo +'</td>';
-                    let uraReferenceNo = '<td>'+ refNo +'</td>';
-
+                    let externalDocumentNumber = '<td>'+data[counter].invoiceNo+'</td>';
+                    let oriInvoiceId = '<td>'+data[counter].oriInvoiceId+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
-                    tablerow.append(creditNoteNo);
+                    tablerow.append(antifakeCode);
                     tablerow.append(documentDate);
                     tablerow.append(operator);
+                    tablerow.append(invoiceType);
                     tablerow.append(customerName);
-                    tablerow.append(oriInvoiceNo);
-                    tablerow.append(uraReferenceNo);
-                    
-                    if(pending){
-                      action = $('<td><button type="button" title="'+data[counter].uraReferenceNo+'" class="btn btn-primary pending-btn" id="pending-client">Pending</button><input type="hidden" id="'+data[counter].uraReferenceNo+'" value="'+data[counter].creditNoteNo+'"></td>');
-                      tablerow.append(action);
-                    }
-                    else if(uploaded){
+                    tablerow.append(externalDocumentNumber);
+                    tablerow.append(oriInvoiceId);
+
+                   if(uploaded){
                       action = $('<td>Uploaded</td>');
                       tablerow.append(action);
                     }
@@ -91,36 +80,9 @@ $(document).ready(function(){
                     orderTableBody.append(tablerow)
 
                     row += 1;
-                }
+                  }
 
-                $(document).on('click', '.pending-btn', function(event){
-                    var x = $(this).attr('title');
-                    var v = $('#'+x).val();
-
-                    $.ajax({
-                        url: "http://localhost:8000/dashboard/dd?credit_note_id="+x+"&v="+v,
-                        beforeSend: function(request) {
-                            console.log("before send");
-                        },
-                        success: function(result, status, xhr) {
-                          swal({
-                            title: '',
-                            text: ''+result.returnStateInfo.returnMessage,
-                            icon: 'success',
-                            button: {
-                              text: "Ok",
-                              value: true,
-                              visible: true,
-                              className: "btn btn-primary"
-                            }
-                          })
-                        },
-                      });
-                    console.log(x);
-                    event.stopImmediatePropagation();
-                });
-
-                if(previousPage) {
+                    if(previousPage) {
                     let x = currentPage - 1;
                     let firstPageBtn = $('<li title="'+ 1 +'" class="page-item"><span class="page-link btn">First</span></li>');
                     let previousPageBtn = $('<li title="'+ x +'" class="page-item"><span class="page-link btn">Previous</span></li>');
@@ -145,7 +107,6 @@ $(document).ready(function(){
 
                 if(nextPage) {
                     let x = currentPage + 1;
-                    console.log(x);
                     let nextPageBtn = $('<li title="'+ x +'" class="page-item"><span class="page-link btn">Next</span></li>');
                     paginator.append(nextPageBtn);
                 }
@@ -157,9 +118,10 @@ $(document).ready(function(){
 
                 $(document).on('click', 'li.page-item', function(event){
                     var x = parseInt($(this).attr('title'));
-                    loadCreditNotes(x);
+                    loadInvoices(x);
                     event.stopImmediatePropagation();
                 });
+                
             },
             error: function(xhr, textStatus, errorMessage) {
                 swal({
@@ -177,18 +139,18 @@ $(document).ready(function(){
           });
     }
 
-     function searchCreditNote(doc_num) {
+    function searchInvoice(doc_num) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/search_credit_note?doc_num="+doc_num,
+            url: "http://localhost:8000/dashboard/search_service_invoice?doc_num="+doc_num,
             beforeSend: function(request) {
                 console.log("before send");
             },
             success: function(result, status, xhr) {
                 $('#docs-loader').hide();
-                if($.isEmptyObject(result.creditNoteHeader)){
+                if($.isEmptyObject(result.invoiceHeader)){
                   swal({
                             title: 'Error Occurred',
-                            text: 'No credit note record found',
+                            text: 'No invoice record found',
                             icon: 'error',
                             button: {
                               text: "Ok",
@@ -199,26 +161,56 @@ $(document).ready(function(){
                           })
                 }
                 else{
-                var data = result.creditNoteHeader.header[0];
-                console.log("success");
-                let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data.creditNoteNo+'"/></td>');
+                var data = result.invoiceHeader.header[0];
+                let qrcode = data.uraQrcode;
+                let veriCode = data.verificationCode;
+                let oriInvoiceI = data.oriInvoiceId;
+                let invoiceNo = data.uraOriginalInvoiceNo;
+                  
+                let checkBox = null;
+                let action = null;
+                let color = "";
+                let uploaded = (oriInvoiceI != '' && invoiceNo != '' && veriCode != '' && qrcode != '');
+
+                    let tablerow = $('<tr></tr>');
+
+                    if(uploaded){
+                      checkBox = $('<td class="text-center"></td>');
+                      tablerow.addClass("table-success");
+                    }
+                    else{
+                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data.antifakeCode+'"/></td>');
+                      tablerow.addClass("table-info");
+                    }
+  
                     let rowCount = $('<td>1</td>');
-                    let creditNoteNo = $('<td>'+data.creditNoteNo+'</td>');
-                    let documentDate = $('<td>'+data.applicationTime+'</td>');
+                    let antifakeCode = $('<td>'+data.antifakeCode+'</td>');
+                    let documentDate = $('<td>'+data.documentDate+'</td>');
                     let operator = $('<td>'+data.operator+'</td>');
+                    let invoiceType = $('<td>'+data.invoiceType+'</td>');
                     let customerName = $('<td>'+data.customerName+'</td>');
-                    let externalDocumentNumber = '<td>'+data.externalDocumentNo+'</td>';
-                    let uraReferenceNo = '<td>'+data.uraReferenceNo+'</td>';
+                    let externalDocumentNumber = '<td>'+data.invoiceNo+'</td>';
+                    let oriInvoiceId = '<td>'+data.oriInvoiceId+'</td>';
+                    //let documentdate = '<td>'+result.invoiceHeaders.header[a].documentDate+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
-                    tablerow.append(creditNoteNo);
+                    tablerow.append(antifakeCode);
                     tablerow.append(documentDate);
                     tablerow.append(operator);
+                    tablerow.append(invoiceType);
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
-                    tablerow.append(uraReferenceNo);
+                    tablerow.append(oriInvoiceId);
+
+                    if(uploaded){
+                      action = $('<td>Uploaded</td>');
+                      tablerow.append(action);
+                    }
+                    else {
+                      action = $('<td>Not Uploaded</td>');
+                      tablerow.append(action);
+                    }
 
                     orderTableBody.append(tablerow)
                   }
@@ -239,34 +231,11 @@ $(document).ready(function(){
           });
     }
 
-    loadCreditNotes();
+    loadInvoices();
 
-        searchCreditNoteBtn.click(function(){
-      var txt = searchCreditNoteTextField.val();
-      if(txt == ""){
-        swal({
-                            title: 'Error Occurred',
-                            text: 'Enter document number',
-                            icon: 'error',
-                            button: {
-                              text: "Ok",
-                              value: true,
-                              visible: true,
-                              className: "btn btn-primary"
-                            }
-                          })
-      }
-      else{
-        orderTableBody.empty();
-        paginator.empty();
-        $('#docs-loader').show();
-        searchCreditNote(txt);
-      }
-    });
-
-     uploadCreditNotesBtn.click(function(){
+    uploadInvoiceBtn.click(function(){
         
-        var checkedinvoice = $('.check-credit-note');
+        var checkedinvoice = $('.check-invoice');
         if(checkedinvoice.not(':checked').length == checkedinvoice.length) {
             console.log("nothing is checked");
             swal({
@@ -281,20 +250,20 @@ $(document).ready(function(){
 
         } 
         else {
-            uploadCreditNotesBtn.prop('disabled', true);
+            uploadInvoiceBtn.prop('disabled', true);
 
-            var s = $(".check-credit-note:checked")
+            var s = $(".check-invoice:checked")
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost:8000/dashboard/upload_credit_note?documentNumber="+documentNumber+"&service_name="+serviceName,
+                url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");
                 },
                 success: function(result, status, xhr) {
                     $('#e-loader').hide()
-                    uploadCreditNotesBtn.prop('disabled', false);
+                    uploadInvoiceBtn.prop('disabled', false);
                     console.log("success");
                     console.log(result);
                     if(result.returnStateInfo.returnCode != "00") {
@@ -313,7 +282,7 @@ $(document).ready(function(){
                     else {
 
                        swal({
-                            title: 'Credit Note Successfully Generated',
+                            title: 'E-Invoice Successfully Generated',
                             text: ''+result.returnStateInfo.returnMessage,
                             icon: 'success',
                             button: {
@@ -328,7 +297,7 @@ $(document).ready(function(){
                 },
                 error: function(xhr, textStatus, errorMessage) {
                     $('#e-loader').hide();
-                    uploadCreditNotesBtn.prop('disabled', false);
+                    uploadInvoiceBtn.prop('disabled', false);
                     swal({
                             title: 'Error Occurred',
                             text: ''+errorMessage,
@@ -343,5 +312,28 @@ $(document).ready(function(){
                 },
               });
         }
+    });
+
+    searchInvoiceBtn.click(function(){
+      var txt = searchInvoiceTextField.val();
+      if(txt == ""){
+        swal({
+                            title: 'Error Occurred',
+                            text: 'Enter document number',
+                            icon: 'error',
+                            button: {
+                              text: "Ok",
+                              value: true,
+                              visible: true,
+                              className: "btn btn-primary"
+                            }
+                          })
+      }
+      else{
+        orderTableBody.empty();
+        paginator.empty();
+        $('#docs-loader').show();
+        searchInvoice(txt);
+      }
     });
 });

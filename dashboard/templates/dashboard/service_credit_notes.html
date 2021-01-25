@@ -9,7 +9,7 @@
 {% include 'core/left_sidebar.html' %}
 
 <div class="main-panel">
-    <input type="hidden" id="service_name" value="item credit notes"/>
+    <input type="hidden" id="service_name" value="service credit notes"/>
     <div class="content-wrapper">
         <div class="dashboard-header d-flex flex-column grid-margin">
             <div class="d-flex align-items-center justify-content-between flex-wrap border-bottom pb-3 mb-3">
@@ -17,7 +17,7 @@
                     <div class="d-none d-md-flex">
                         <p class="text-muted mb-0 tx-13 cursor-pointer">Dashboard</p>
                         <i class="mdi mdi-chevron-right text-muted"></i>
-                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'credit_notes' %}">{{ page }}</a></p>
+                        <p class="text-muted mb-0 tx-13 cursor-pointer"><a href="{% url 'service_credit_notes' %}">{{ page }}</a></p>
                     </div>
                 </div>
                 <div class="button-wrapper d-flex align-items-center mt-md-3 mt-xl-0">
@@ -109,5 +109,5 @@
 {% block scripts %}
 <script src="{% static 'base/js/base.js' %}"></script>
 <script src="{% static 'vendor/js/sweetalert.min.js' %}"></script>
-<script src="{% static 'base/js/credit-notes.js' %}"></script>
+<script src="{% static 'base/js/service_credit_notes.js' %}"></script>
 {% endblock %}

@@ -9,6 +9,7 @@
 {% include 'core/left_sidebar.html' %}
 
 <div class="main-panel">
+    <input type="hidden" id="service_name" value="item invoices"/>
     <div class="content-wrapper">
         <div class="dashboard-header d-flex flex-column grid-margin">
             <div class="d-flex align-items-center justify-content-between flex-wrap border-bottom pb-3 mb-3">
@@ -35,7 +36,7 @@
                         <div class="row" style="margin-bottom: 2%;">
                             <div class="col-xl-6">
                                 <input type="text" class="form-control" id="document-number"
-                                    placeholder="Document Number" />
+                                    placeholder="Navision Invoice Number" />
                             </div>
                             <div class="col-xl-4">
                                 <button type="button" class="btn btn-primary" id="search-invoices">Search</button>
@@ -78,6 +79,9 @@
                                         <th>
                                             URA Ref Num
                                         </th>
+                                        <th>
+                                            Action
+                                        </th> 
                                     </tr>
                                 </thead>
                                 <tbody id="order-table-body">

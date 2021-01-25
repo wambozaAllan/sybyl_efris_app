@@ -4,6 +4,7 @@ $(document).ready(function(){
     var paginator = $("#paginator");
     var searchInvoiceBtn = $('#search-invoices');
     var searchInvoiceTextField = $('#document-number');
+    let serviceName = $('#service_name').val();
 
     function loadInvoices(page=1) {
         $.ajax({
@@ -27,9 +28,27 @@ $(document).ready(function(){
                 paginator.empty();
 
                 for(counter = 0; counter < data.length; counter++){
+                  let qrcode = data[counter].uraQrcode;
+                  let veriCode = data[counter].verificationCode;
+                  let oriInvoiceI = data[counter].oriInvoiceId;
+                  let invoiceNo = data[counter].uraOriginalInvoiceNo;
+                    
+                  let checkBox = null;
+                  let action = null;
+                  let color = "";
+                  let uploaded = (oriInvoiceI != '' && invoiceNo != '' && veriCode != '' && qrcode != '');
 
-                    let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data[counter].antifakeCode+'"/></td>');
+                  let tablerow = $('<tr></tr>');
+
+                  if(uploaded){
+                    checkBox = $('<td class="text-center"></td>');
+                    tablerow.addClass("table-success");
+                  }
+                  else{
+                    checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data[counter].antifakeCode+'"/></td>');
+                    tablerow.addClass("table-info");
+                  }
+
                     let rowCount = $('<td>'+ row +'</td>');
                     let antifakeCode = $('<td>'+data[counter].antifakeCode+'</td>');
                     let documentDate = $('<td>'+data[counter].documentDate+'</td>');
@@ -38,7 +57,6 @@ $(document).ready(function(){
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
                     let externalDocumentNumber = '<td>'+data[counter].invoiceNo+'</td>';
                     let oriInvoiceId = '<td>'+data[counter].oriInvoiceId+'</td>';
-                    //let documentdate = '<td>'+result.invoiceHeaders.header[a].documentDate+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
@@ -49,6 +67,15 @@ $(document).ready(function(){
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
                     tablerow.append(oriInvoiceId);
+
+                   if(uploaded){
+                      action = $('<td>Uploaded</td>');
+                      tablerow.append(action);
+                    }
+                    else {
+                      action = $('<td>Not Uploaded</td>');
+                      tablerow.append(action);
+                    }
 
                     orderTableBody.append(tablerow)
 
@@ -80,7 +107,6 @@ $(document).ready(function(){
 
                 if(nextPage) {
                     let x = currentPage + 1;
-                    console.log(x);
                     let nextPageBtn = $('<li title="'+ x +'" class="page-item"><span class="page-link btn">Next</span></li>');
                     paginator.append(nextPageBtn);
                 }
@@ -90,7 +116,7 @@ $(document).ready(function(){
                     paginator.append(lastPageBtn);
                 }
 
-                $(document).on('click', 'li', function(event){
+                $(document).on('click', 'li.page-item', function(event){
                     var x = parseInt($(this).attr('title'));
                     loadInvoices(x);
                     event.stopImmediatePropagation();
@@ -136,9 +162,27 @@ $(document).ready(function(){
                 }
                 else{
                 var data = result.invoiceHeader.header[0];
-                console.log("success");
-                let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data.antifakeCode+'"/></td>');
+                let qrcode = data.uraQrcode;
+                let veriCode = data.verificationCode;
+                let oriInvoiceI = data.oriInvoiceId;
+                let invoiceNo = data.uraOriginalInvoiceNo;
+                  
+                let checkBox = null;
+                let action = null;
+                let color = "";
+                let uploaded = (oriInvoiceI != '' && invoiceNo != '' && veriCode != '' && qrcode != '');
+
+                    let tablerow = $('<tr></tr>');
+
+                    if(uploaded){
+                      checkBox = $('<td class="text-center"></td>');
+                      tablerow.addClass("table-success");
+                    }
+                    else{
+                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data.antifakeCode+'"/></td>');
+                      tablerow.addClass("table-info");
+                    }
+  
                     let rowCount = $('<td>1</td>');
                     let antifakeCode = $('<td>'+data.antifakeCode+'</td>');
                     let documentDate = $('<td>'+data.documentDate+'</td>');
@@ -158,6 +202,15 @@ $(document).ready(function(){
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
                     tablerow.append(oriInvoiceId);
+
+                    if(uploaded){
+                      action = $('<td>Uploaded</td>');
+                      tablerow.append(action);
+                    }
+                    else {
+                      action = $('<td>Not Uploaded</td>');
+                      tablerow.append(action);
+                    }
 
                     orderTableBody.append(tablerow)
                   }
@@ -203,7 +256,7 @@ $(document).ready(function(){
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber,
+                url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");

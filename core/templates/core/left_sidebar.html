@@ -1,16 +1,43 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'invoices' %}">
+        <a class="nav-link" data-toggle="collapse" href="#id-invoices" aria-expanded="false" aria-controls="id-invoices">
           <i class="mdi mdi-receipt menu-icon"></i>
-          <span class="menu-title">Generate URA Invoices</span>
+          <span class="menu-title">Invoices</span>
+          <i class="mdi mdi-arrow-right-circle"></i>
         </a>
+        <div class="collapse" id="id-invoices">
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item"> <a class="nav-link active" href="{% url 'invoices' %}">Item Invoices</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{% url 'service_invoices' %}">Service Invoices</a></li>
+          </ul>
+        </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'credit_notes' %}">
+        <a class="nav-link" data-toggle="collapse" href="#id-credit-notes" aria-expanded="false" aria-controls="id-credit-notes">
           <i class="mdi mdi-archive menu-icon" ></i>
-          <span class="menu-title">Credit Note</span>
+          <span class="menu-title">Credit Notes</span>
+          <i class="mdi mdi-arrow-right-circle"></i>
         </a>
+        <div class="collapse" id="id-credit-notes">
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item"> <a class="nav-link" href="{% url 'credit_notes' %}">Item Credit Notes</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{% url 'service_credit_notes' %}">Service Credit Notes</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="collapse" href="#id-stock" aria-expanded="false" aria-controls="id-stock">
+          <i class="mdi mdi-archive menu-icon" ></i>
+          <span class="menu-title">Stock Management</span>
+          <i class="mdi mdi-arrow-right-circle"></i>
+        </a>
+        <div class="collapse" id="id-stock">
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item"> <a class="nav-link" href="">New Items</a></li>
+            <li class="nav-item"> <a class="nav-link" href="">Item Stock Maintain</a></li>
+          </ul>
+        </div>
       </li>
     </ul>
   </nav>
