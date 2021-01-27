@@ -49,9 +49,14 @@ $(document).ready(function(){
                     tablerow.addClass("table-info");
                   }
 
+                    let documentDate = data[counter].documentDate;
+                    let [month, date, year] = new Date(documentDate).toLocaleDateString("en-US").split("/");
+                    let [hour, minute, second] = new Date(documentDate).toLocaleTimeString("en-US").split(/:| /);
+                    let dateTime = date+"-"+month+"-"+year+" "+hour+":"+minute+":"+second;
+
                     let rowCount = $('<td>'+ row +'</td>');
                     let antifakeCode = $('<td>'+data[counter].antifakeCode+'</td>');
-                    let documentDate = $('<td>'+data[counter].documentDate+'</td>');
+                    let documentDateCol = $('<td>'+documentDate+'</td>');
                     let operator = $('<td>'+data[counter].operator+'</td>');
                     let invoiceType = $('<td>'+data[counter].invoiceType+'</td>');
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
@@ -61,7 +66,7 @@ $(document).ready(function(){
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
                     tablerow.append(antifakeCode);
-                    tablerow.append(documentDate);
+                    tablerow.append(documentDateCol);
                     tablerow.append(operator);
                     tablerow.append(invoiceType);
                     tablerow.append(customerName);
@@ -182,21 +187,25 @@ $(document).ready(function(){
                       checkBox = $('<td class="text-center"><input type="checkbox" class="check-invoice" value="'+data.antifakeCode+'"/></td>');
                       tablerow.addClass("table-info");
                     }
-  
+
+                    let documentDate = data.documentDate;
+                    let [month, date, year] = new Date(documentDate).toLocaleDateString("en-US").split("/");
+                    let [hour, minute, second] = new Date(documentDate).toLocaleTimeString("en-US").split(/:| /)
+                    let dateTime = date+"-"+month+"-"+year+" "+hour+":"+minute+":"+second
+
                     let rowCount = $('<td>1</td>');
                     let antifakeCode = $('<td>'+data.antifakeCode+'</td>');
-                    let documentDate = $('<td>'+data.documentDate+'</td>');
+                    let documentDateCol = $('<td>'+data.documentDate+'</td>');
                     let operator = $('<td>'+data.operator+'</td>');
                     let invoiceType = $('<td>'+data.invoiceType+'</td>');
                     let customerName = $('<td>'+data.customerName+'</td>');
                     let externalDocumentNumber = '<td>'+data.invoiceNo+'</td>';
                     let oriInvoiceId = '<td>'+data.oriInvoiceId+'</td>';
-                    //let documentdate = '<td>'+result.invoiceHeaders.header[a].documentDate+'</td>';
 
                     tablerow.append(checkBox);
                     tablerow.append(rowCount);
                     tablerow.append(antifakeCode);
-                    tablerow.append(documentDate);
+                    tablerow.append(documentDateCol);
                     tablerow.append(operator);
                     tablerow.append(invoiceType);
                     tablerow.append(customerName);

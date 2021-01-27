@@ -269,6 +269,7 @@ def update_credit_note_id(request):
         '<_putupdatecreditnoteid>'
             '<documentNumber>'+ doc_num +'</documentNumber>'
             '<uraRefNo>'+ credit_note_id +'</uraRefNo>'
+            '<qrcode></qrcode>'
         '</_putupdatecreditnoteid>')
 
     print(req_message)
@@ -696,11 +697,11 @@ def upload_credit_note(request):
     specific_credit_note_lines_url = ''
 
     if service_name == 'item credit notes':
-        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?documentNumber='+documentNumber
-        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteLines?documentNumber='+documentNumber
+        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?creditNoteNo='+documentNumber
+        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteLines?creditNoteNo='+documentNumber
     else:
-        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteHeader?documentNumber='+documentNumber
-        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteLines?documentNumber='+documentNumber
+        specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteHeader?creditNoteNo='+documentNumber
+        specific_credit_note_lines_url = 'http://localhost:8280/services/sybyl-efris/getSpecificServiceCreditNoteLines?creditNoteNo='+documentNumber
 
     data = {}
     now = datetime.now()

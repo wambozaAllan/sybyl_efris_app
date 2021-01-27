@@ -40,6 +40,7 @@ $(document).ready(function(){
                     let color = "";
 
                     let pending = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode != '' && externalDocumentNo == '');
+                    let pending_customer = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode == '' && externalDocumentNo == '');
                     let uploaded = (refNo != '' && invoiceNo != '' && veriCode != '' && qrcode != '' && externalDocumentNo != '');
 
                     let tablerow = $('<tr></tr>');
@@ -48,8 +49,12 @@ $(document).ready(function(){
                       checkBox = $('<td class="text-center"></td>');
                       tablerow.addClass("table-success");
                     }
-                    else if(pending){
+                    else if(pending_customer){
                       checkBox = $('<td class="text-center"></td>');
+                      tablerow.addClass("table-danger");
+                    }
+                    else if(pending){
+                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data[counter].creditNoteNo+'"/></td>');
                       tablerow.addClass("table-warning");
                     }
                     else{
@@ -57,9 +62,14 @@ $(document).ready(function(){
                       tablerow.addClass("table-info");
                     }
 
+                    let applicationTime = data[counter].applicationTime;
+                    let [month, date, year] = new Date(applicationTime).toLocaleDateString("en-US").split("/");
+                    let [hour, minute, second] = new Date(applicationTime).toLocaleTimeString("en-US").split(/:| /)
+                    let dateTime = date+"-"+month+"-"+year+" "+hour+":"+minute+":"+second
+
                     let rowCount = $('<td>'+ row +'</td>');
                     let creditNoteNo = $('<td>'+data[counter].creditNoteNo+'</td>');
-                    let documentDate = $('<td>'+data[counter].applicationTime+'</td>');
+                    let documentDate = $('<td>'+dateTime+'</td>');
                     let operator = $('<td>'+data[counter].operator+'</td>');
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
                     let oriInvoiceNo = '<td>'+ invoiceNo +'</td>';
@@ -75,12 +85,17 @@ $(document).ready(function(){
                     tablerow.append(oriInvoiceNo);
                     tablerow.append(uraReferenceNo);
                     
-                    if(pending){
-                      action = $('<td><button type="button" title="'+data[counter].uraReferenceNo+'" class="btn btn-primary pending-btn" id="pending-client">Pending</button><input type="hidden" id="'+data[counter].uraReferenceNo+'" value="'+data[counter].creditNoteNo+'"></td>');
+                    
+                    if(uploaded){
+                      action = $('<td>Uploaded</td>');
                       tablerow.append(action);
                     }
-                    else if(uploaded){
-                      action = $('<td>Uploaded</td>');
+                    else if(pending_customer) {
+                      action = $('<td><button type="button" title="'+data[counter].uraReferenceNo+'" class="btn btn-primary pending-btn" id="pending-client">Pending</button><input type="hidden" id="'+data[counter].uraReferenceNo+'" value="'+data[counter].creditNoteNo+'"/><span id="pending-loader" style="margin-left: 10px; width: 20px; height: 20px; display: none;" class="circle-loader"></span></td>');
+                      tablerow.append(action);
+                    }
+                    else if(pending){
+                      action = $('<td>Not Uploaded</td>');
                       tablerow.append(action);
                     }
                     else {
@@ -94,8 +109,12 @@ $(document).ready(function(){
                 }
 
                 $(document).on('click', '.pending-btn', function(event){
+                    var d = $(this);
                     var x = $(this).attr('title');
                     var v = $('#'+x).val();
+
+                    d.prop('disabled', true);
+                    $('#pending-loader').show();
 
                     $.ajax({
                         url: "http://localhost:8000/dashboard/dd?credit_note_id="+x+"&v="+v,
@@ -103,6 +122,8 @@ $(document).ready(function(){
                             console.log("before send");
                         },
                         success: function(result, status, xhr) {
+                          d.prop('disabled', false);
+                          $('#pending-loader').hide();
                           swal({
                             title: '',
                             text: ''+result.returnStateInfo.returnMessage,
@@ -116,7 +137,6 @@ $(document).ready(function(){
                           })
                         },
                       });
-                    console.log(x);
                     event.stopImmediatePropagation();
                 });
 
@@ -201,11 +221,47 @@ $(document).ready(function(){
                 else{
                 var data = result.creditNoteHeader.header[0];
                 console.log("success");
-                let tablerow = $('<tr></tr>').addClass("table-info");
-                    let checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data.creditNoteNo+'"/></td>');
+                let qrcode = data.qrcode;
+                    let veriCode = data.verificationCode;
+                    let refNo = data.uraReferenceNo;
+                    let invoiceNo = data.oriInvoiceNo;
+                    let externalDocumentNo = data.externalDocumentNo;
+
+                    let checkBox = null;
+                    let action = null;
+                    let color = "";
+
+                    let pending = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode != '' && externalDocumentNo == '');
+                    let pending_customer = (refNo != '' && invoiceNo != '' && veriCode == '' && qrcode == '' && externalDocumentNo == '');
+                    let uploaded = (refNo != '' && invoiceNo != '' && veriCode != '' && qrcode != '' && externalDocumentNo != '');
+
+                    let tablerow = $('<tr></tr>');
+
+                    if(uploaded){
+                      checkBox = $('<td class="text-center"></td>');
+                      tablerow.addClass("table-success");
+                    }
+                    else if(pending_customer){
+                      checkBox = $('<td class="text-center"></td>');
+                      tablerow.addClass("table-danger");
+                    }
+                    else if(pending){
+                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data.creditNoteNo+'"/></td>');
+                      tablerow.addClass("table-warning");
+                    }
+                    else{
+                      checkBox = $('<td class="text-center"><input type="checkbox" class="check-credit-note" value="'+data.creditNoteNo+'"/></td>');
+                      tablerow.addClass("table-info");
+                    }
+
+                    let applicationTime = data.applicationTime;
+                    let [month, date, year] = new Date(applicationTime).toLocaleDateString("en-US").split("/");
+                    let [hour, minute, second] = new Date(applicationTime).toLocaleTimeString("en-US").split(/:| /)
+                    let dateTime = date+"-"+month+"-"+year+" "+hour+":"+minute+":"+second
+
                     let rowCount = $('<td>1</td>');
                     let creditNoteNo = $('<td>'+data.creditNoteNo+'</td>');
-                    let documentDate = $('<td>'+data.applicationTime+'</td>');
+                    let documentDate = $('<td>'+dateTime+'</td>');
                     let operator = $('<td>'+data.operator+'</td>');
                     let customerName = $('<td>'+data.customerName+'</td>');
                     let externalDocumentNumber = '<td>'+data.externalDocumentNo+'</td>';
@@ -219,6 +275,23 @@ $(document).ready(function(){
                     tablerow.append(customerName);
                     tablerow.append(externalDocumentNumber);
                     tablerow.append(uraReferenceNo);
+
+                    if(uploaded){
+                      action = $('<td>Uploaded</td>');
+                      tablerow.append(action);
+                    }
+                    else if(pending_customer) {
+                      action = $('<td><button type="button" title="'+data.uraReferenceNo+'" class="btn btn-primary pending-btn" id="pending-client">Pending</button><input type="hidden" id="'+data.uraReferenceNo+'" value="'+data.creditNoteNo+'"></td>');
+                      tablerow.append(action);
+                    }
+                    else if(pending){
+                      action = $('<td>Not Uploaded</td>');
+                      tablerow.append(action);
+                    }
+                    else {
+                      action = $('<td>Not Uploaded</td>');
+                      tablerow.append(action);
+                    }
 
                     orderTableBody.append(tablerow)
                   }
@@ -241,7 +314,7 @@ $(document).ready(function(){
 
     loadCreditNotes();
 
-        searchCreditNoteBtn.click(function(){
+      searchCreditNoteBtn.click(function(){
       var txt = searchCreditNoteTextField.val();
       if(txt == ""){
         swal({
