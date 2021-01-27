@@ -377,6 +377,16 @@ def upload_invoice(request):
     service_name = request.GET['service_name']
     specific_invoice_header_url = ''
     specific_invoice_lines_url = ''
+    customer_number = ''
+    goodsDetailsBody = '{}'
+    goodsDetailsHeader = '"goodsDetails": []'
+    goodsDetailsFooter = '],'
+    taxDetailsHeader = '"taxDetails": []'
+    total = 0.00
+    tax_amount = 0.00
+    total_amount = 0.00
+    total_amount_vat = 0.00
+    number_of_items = 0
 
     if service_name == 'item invoices':
         specific_invoice_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificInvoiceHeader?documentNumber='+documentNumber
@@ -402,6 +412,8 @@ def upload_invoice(request):
     if document_header_response.status_code == 200:
         document_header_data = document_header_response.json()
         partdata = document_header_data['invoiceHeader']['header'][0]
+
+        customer_number = partdata['customerNumber']
         ref_no = partdata['antifakeCode']
 
         seller_details = ('"sellerDetails": {'
@@ -462,7 +474,6 @@ def upload_invoice(request):
         while counter < number_of_lines:
             tax = str((Decimal(partdata[counter]['amountIncludingVat']) - Decimal(partdata[counter]['total'])).quantize(TWO_DECIMAL_PLACES))
             total = str((Decimal(partdata[counter]['total']) * Decimal(partdata[counter]['qty'])).quantize(TWO_DECIMAL_PLACES))
-            customerNumber = partdata[counter]['customerNo']
             item = (partdata[counter]['item']).replace('"', '\\"')
             tax_rate = str((Decimal(partdata[counter]['taxRate']) / 100).quantize(TWO_DECIMAL_PLACES))
             number_of_items = number_of_items + int(Decimal(partdata[counter]['qty']))
@@ -562,7 +573,7 @@ def upload_invoice(request):
     else:
         print('error')
 
-    buyer_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCustomerInformation?customerNo='+customerNumber, headers={'Accept': 'application/json'})
+    buyer_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCustomerInformation?customerNo='+customer_number, headers={'Accept': 'application/json'})
 
     if buyer_infor_response.status_code == 200:
         buyer_infor_data = buyer_infor_response.json()
@@ -613,23 +624,43 @@ def upload_invoice(request):
 	"meterStatus": ""
 	}'''
 
-    upload_invoice_message =  ('{'+seller_details+','+ basic_information+','+buyer_details+','+ buyer_extend_infor+','
-    +goodsDetailsHeader+','+ taxDetailsHeader+','+
-    '"summary": {'
-    '"netAmount": "'+ str(total_amount) +'",'
-    '"taxAmount": "'+ str(total_amount_vat - total_amount) +'",'
-    '"grossAmount": "'+ str(total_amount_vat) +'",'
-    '"itemCount": "'+ str(number_of_items) +'",'
-    '"modeCode": "0",'
-    '"remarks": "",'
-    '"qrCode": ""'
-    '},'
-    '"payWay": [],'
-    '"extend": {'
-    '"reason": "",'
-    '"reasonCode": ""},'
-    '"importServicesSeller": {}'
-    '}')
+    if goodsDetailsHeader != '"goodsDetails": [],':
+        upload_invoice_message =  ('{'+seller_details+','+ basic_information+','+buyer_details+','+ buyer_extend_infor+','
+                +goodsDetailsHeader+','+ taxDetailsHeader+','+
+                '"summary": {'
+                '"netAmount": "'+ str(total_amount) +'",'
+                '"taxAmount": "'+ str(total_amount_vat - total_amount) +'",'
+                '"grossAmount": "'+ str(total_amount_vat) +'",'
+                '"itemCount": "'+ str(number_of_items) +'",'
+                '"modeCode": "0",'
+                '"remarks": "",'
+                '"qrCode": ""'
+                '},'
+                '"payWay": [],'
+                '"extend": {'
+                '"reason": "",'
+                '"reasonCode": ""},'
+                '"importServicesSeller": {}'
+                '}')
+    else:
+        upload_invoice_message =  ('{'+seller_details+','+ basic_information+','+buyer_details+','+ buyer_extend_infor+','
+                +goodsDetailsHeader+','+ taxDetailsHeader+','+
+                '"summary": {'
+                '"netAmount": "",'
+                '"taxAmount": "",'
+                '"grossAmount": "",'
+                '"itemCount": "",'
+                '"modeCode": "0",'
+                '"remarks": "",'
+                '"qrCode": ""'
+                '},'
+                '"payWay": [],'
+                '"extend": {'
+                '"reason": "",'
+                '"reasonCode": ""},'
+                '"importServicesSeller": {}'
+                '}')
+
 
     print('--------------------------------------------------------------------')
     print(upload_invoice_message)
