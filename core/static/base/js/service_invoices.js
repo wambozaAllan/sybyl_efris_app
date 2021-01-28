@@ -8,7 +8,7 @@ $(document).ready(function(){
 
   function loadInvoices(page=1) {
       $.ajax({
-          url: "http://localhost:8000/dashboard/load_service_invoices?page="+page,
+          url: "http://localhost/dashboard/load_service_invoices?page="+page,
           beforeSend: function(request) {
               console.log("before send");
           },
@@ -146,7 +146,7 @@ $(document).ready(function(){
 
   function searchInvoice(doc_num) {
       $.ajax({
-          url: "http://localhost:8000/dashboard/search_invoice?doc_num="+doc_num,
+          url: "http://localhost/dashboard/search_invoice?doc_num="+doc_num,
           beforeSend: function(request) {
               console.log("before send");
           },
@@ -265,7 +265,7 @@ $(document).ready(function(){
           var documentNumber = s[0].value;
 
           $.ajax({
-              url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
+              url: "http://localhost/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
               beforeSend: function(request) {
                   $('#e-loader').show();
                   console.log("before send");

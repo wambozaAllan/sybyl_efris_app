@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage
+from django.contrib.auth.decorators import login_required
 
 import requests
 from datetime import datetime
@@ -9,6 +10,10 @@ import base64
 import dateutil.parser
 import json
 from decimal import *
+import logging
+
+# Create a logger for this file
+logger = logging.getLogger(__file__)
 
 TWO_DECIMAL_PLACES = Decimal('0.00')
 
@@ -65,24 +70,28 @@ def build_base64_string(message):
 
     return base64_string
 
+@login_required(login_url='login')
 def credit_notes(request):
     context = {
         'page': 'Credit Notes',
     }
     return render(request, 'dashboard/credit-notes.html', context)
 
+@login_required(login_url='login')
 def service_credit_notes(request):
     context = {
         'page': 'Service Credit Notes',
     }
     return render(request, 'dashboard/service_credit_notes.html', context)
 
+@login_required(login_url='login')
 def service_invoices(request):
     context = {
         'page': 'Service Invoices',
     }
     return render(request, 'dashboard/service_invoices.html', context)
 
+@login_required(login_url='login')
 def invoices(request):
     context = {
         'page': 'Item Invoices',
@@ -100,7 +109,6 @@ def load_items(request):
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:
-        print(response.headers.get('Content-Type'))
         data = response.json()
         return JsonResponse(data, status=200)
     
@@ -127,8 +135,6 @@ def load_invoices(request):
             'next_page': invoices_page.has_next(),
             'previous_page': invoices_page.has_previous(),
         }
-
-        print(pagination_data)
 
         return JsonResponse(pagination_data, status=200)
     
@@ -156,8 +162,6 @@ def load_service_invoices(request):
             'previous_page': invoices_page.has_previous(),
         }
 
-        print(pagination_data)
-
         return JsonResponse(pagination_data, status=200)
     
     else: 
@@ -183,8 +187,6 @@ def load_invoices(request):
             'next_page': invoices_page.has_next(),
             'previous_page': invoices_page.has_previous(),
         }
-
-        print(pagination_data)
 
         return JsonResponse(pagination_data, status=200)
     
@@ -212,8 +214,6 @@ def load_credit_notes(request):
             'previous_page': credit_notes_page.has_previous(),
         }
 
-        print(pagination_data)
-
         return JsonResponse(pagination_data, status=200)
     
     else: 
@@ -240,8 +240,6 @@ def load_service_credit_notes(request):
             'previous_page': credit_notes_page.has_previous(),
         }
 
-        print(pagination_data)
-
         return JsonResponse(pagination_data, status=200)
     
     else: 
@@ -252,7 +250,6 @@ def load_company_info(request):
     response = requests.get(url, headers={'Accept':'application/json'})
     data = {}
     if response.status_code == 200:
-        print(response.headers.get('Content-Type'))
         data = response.json()
         return JsonResponse(data, status=200)
     
@@ -262,20 +259,29 @@ def load_company_info(request):
 def update_credit_note_id(request):
     credit_note_id = request.GET['credit_note_id']
     doc_num = request.GET['doc_num']
+    service_name = request.GET['service_name']
+    url = ''
 
-    url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteID'
-    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
-    req_message = (
+    if service_name == 'item credit notes':
+        url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteID'
+        req_message = (
         '<_putupdatecreditnoteid>'
             '<documentNumber>'+ doc_num +'</documentNumber>'
             '<uraRefNo>'+ credit_note_id +'</uraRefNo>'
             '<qrcode></qrcode>'
         '</_putupdatecreditnoteid>')
+    else:
+        url = 'http://localhost:8280/services/sybyl-efris/updateServiceCreditNoteId'
+        req_message = (
+        '<_putupdateservicecreditnoteidquery>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+            '<uraRefNo>'+ credit_note_id +'</uraRefNo>'
+            '<qrcode></qrcode>'
+        '</_putupdateservicecreditnoteidquery>')
 
-    print(req_message)
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
 
     response = requests.put(url, data=req_message, headers=request_headers)
-    print(response.status_code)
 
     data = {}
     if response.status_code == 200:
@@ -290,10 +296,13 @@ def update_urainvoicenum_qrcode(request):
     doc_num = request.GET['doc_num']
     ura_ref_no = request.GET['ura_ref_no']
     verification_code = request.GET['verification_code']
+    service_name = request.GET['service_name']
+    url = ''
+    req_message = ''
 
-    url = 'http://localhost:8280/services/sybyl-efris/updateUraInvoiceAndQrcode'
-    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
-    req_message = (
+    if service_name == 'item invoices':
+        url = 'http://localhost:8280/services/sybyl-efris/updateUraInvoiceAndQrcode'
+        req_message = (
         '<_putupdateuraoriginalinvoicenumberandqrcode>'
             '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
             '<uraQrcode>'+ qrcode +'</uraQrcode>'
@@ -301,11 +310,20 @@ def update_urainvoicenum_qrcode(request):
             '<uraRefNo>'+ ura_ref_no +'</uraRefNo>'
             '<verificationCode>'+ verification_code +'</verificationCode>'
         '</_putupdateuraoriginalinvoicenumberandqrcode>')
+    else:
+        url = 'http://localhost:8280/services/sybyl-efris/updateServiceInvoiceHeader'
+        req_message = (
+        '<_putupdateserviceinvoiceheaderquery>'
+            '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
+            '<uraQrcode>'+ qrcode +'</uraQrcode>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+            '<uraRefNo>'+ ura_ref_no +'</uraRefNo>'
+            '<verificationCode>'+ verification_code +'</verificationCode>'
+        '</_putupdateserviceinvoiceheaderquery>')
 
-    print(req_message)
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
 
     response = requests.put(url, data=req_message, headers=request_headers)
-    print(response.status_code)
 
     data = {}
     if response.status_code == 200:
@@ -330,10 +348,7 @@ def update_credit_note_three(request):
             '<verificationCode>'+ verification_code +'</verificationCode>'
         '</_putupdatecreditnotethree>')
 
-    print(req_message)
-
     response = requests.put(url, data=req_message, headers=request_headers)
-    print(response.status_code)
 
     data = {}
     if response.status_code == 200:
@@ -348,10 +363,13 @@ def update_credit_note_header(request):
     doc_num = request.GET['doc_num']
     ura_ref_no = request.GET['ura_ref_no']
     verification_code = request.GET['verification_code']
+    service_name = request.GET['service_name']
+    url = ''
+    req_message = ''
 
-    url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteHeader'
-    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
-    req_message = (
+    if service_name == 'item credit notes':
+        url = 'http://localhost:8280/services/sybyl-efris/updateCreditNoteHeader'
+        req_message = (
         '<_putupdatecreditnoteheader>'
             '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
             '<uraQrcode>'+ qrcode +'</uraQrcode>'
@@ -359,11 +377,21 @@ def update_credit_note_header(request):
             '<uraRefNo>'+ ura_ref_no +'</uraRefNo>'
             '<verificationCode>'+ verification_code +'</verificationCode>'
         '</_putupdatecreditnoteheader>')
+    else:
+        url = 'http://localhost:8280/services/sybyl-efris/updateServiceCreditNoteHeader'
+        req_message = (
+        '<_putupdateservicecreditnoteheaderquery>'
+            '<uraOriginalInvoiceNo>'+ ura_invoice_num +'</uraOriginalInvoiceNo>'
+            '<uraQrcode>'+ qrcode +'</uraQrcode>'
+            '<documentNumber>'+ doc_num +'</documentNumber>'
+            '<uraRefNo>'+ ura_ref_no +'</uraRefNo>'
+            '<verificationCode>'+ verification_code +'</verificationCode>'
+        '</_putupdateservicecreditnoteheaderquery>')
 
-    print(req_message)
+
+    request_headers = {'Content-Type':'application/xml', 'Accept': 'application/json'}
 
     response = requests.put(url, data=req_message, headers=request_headers)
-    print(response.status_code)
 
     data = {}
     if response.status_code == 200:
@@ -382,10 +410,10 @@ def upload_invoice(request):
     goodsDetailsHeader = '"goodsDetails": []'
     goodsDetailsFooter = '],'
     taxDetailsHeader = '"taxDetails": []'
-    total = 0.00
-    tax_amount = 0.00
-    total_amount = 0.00
-    total_amount_vat = 0.00
+    total = Decimal(0.00)
+    tax_amount = Decimal(0.00)
+    total_amount = Decimal(0.00)
+    total_amount_vat = Decimal(0.00)
     number_of_items = 0
 
     if service_name == 'item invoices':
@@ -404,7 +432,7 @@ def upload_invoice(request):
         company_data = company_infor_response.json()
 
     else:
-        print('error')
+        logger.error("Error fetching company information")
 
     #####################################################################################################
     document_header_response = requests.get(specific_invoice_header_url, headers={'Accept':'application/json'})
@@ -450,7 +478,7 @@ def upload_invoice(request):
         '}')
 
     else: 
-        print('error')
+        logger.error("Failed to fetch invoice details.")
 
     #######################################################################################################
     document_lines_response = requests.get(specific_invoice_lines_url, headers={'Accept':'application/json'})
@@ -571,7 +599,7 @@ def upload_invoice(request):
         taxDetailsHeader = taxDetailsHeader + taxDetailsFooter
 
     else:
-        print('error')
+        logger.error("Failed to fetch invoice lines.")
 
     buyer_infor_response = requests.get('http://localhost:8280/services/sybyl-efris/getCustomerInformation?customerNo='+customer_number, headers={'Accept': 'application/json'})
 
@@ -661,10 +689,7 @@ def upload_invoice(request):
                 '"importServicesSeller": {}'
                 '}')
 
-
-    print('--------------------------------------------------------------------')
-    print(upload_invoice_message)
-    print('--------------------------------------------------------------------')
+    logger.info('invoice message = '+upload_invoice_message)
 
     interface_code = 'T109'
     base64_message = build_base64_string(upload_invoice_message)
@@ -693,9 +718,12 @@ def upload_invoice(request):
             ura_ref_no = content_json['basicInformation']['invoiceId']
             verification_code = content_json['basicInformation']['antifakeCode']
 
+            uri = ''
             #update external document number
-            uri = 'http://localhost:8000/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code
-
+            if service_name == 'item invoices':
+                uri = 'http://localhost/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code+'&service_name=item invoices'
+            else:
+                uri = 'http://localhost/dashboard/update_urainvoicenum_qrcode?ura_invoice_num='+ invoice_number +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+ura_ref_no+'&verification_code='+verification_code+'&service_name=service invoices'
             upex = requests.get(uri)
 
             if upex.status_code == 200:
@@ -726,6 +754,13 @@ def upload_credit_note(request):
     service_name = request.GET['service_name']
     specific_credit_note_header_url = ''
     specific_credit_note_lines_url = ''
+    total_amount = Decimal(0.00)
+    total_amount_vat = Decimal(0.00)
+    number_of_items = 0
+    goodsDetailsBody = '{}'
+    goodsDetailsHeader = '"goodsDetails": [],'
+    goodsDetailsFooter = '],'
+    taxDetailsHeader = '"taxDetails": [],'
 
     if service_name == 'item credit notes':
         specific_credit_note_header_url = 'http://localhost:8280/services/sybyl-efris/getSpecificCreditNoteHeader?creditNoteNo='+documentNumber
@@ -742,7 +777,6 @@ def upload_credit_note(request):
 
     if document_header_response.status_code == 200:
         document_header_data = document_header_response.json()
-        print(document_header_data)
         partdata = document_header_data['creditNoteHeader']['header'][0]
 
         orginal_invoice_num = partdata['oriInvoiceNo']
@@ -773,7 +807,7 @@ def upload_credit_note(request):
                 '"remarks": "",'
                 '"sellersReferenceNo": "'+ seller_ref_num +'",')
     else: 
-        print('error')
+        logger.error("Failed to fetch credit note header.")
 
     document_lines_response = requests.get(specific_credit_note_lines_url, headers={'Accept':'application/json'})
 
@@ -901,7 +935,7 @@ def upload_credit_note(request):
         taxDetailsHeader = taxDetailsHeader + taxDetailsFooter
 
     else:
-        print('error')
+        logger.error("Failed to fetch credit note lines.")
     
     bottom = ('"summary": {'
     '"netAmount": "-'+ str(total_amount) +'",'
@@ -920,7 +954,7 @@ def upload_credit_note(request):
     ''+bottom+''
     '}')
 
-    print(credit_note_message)
+    logger.info('credit note message = '+credit_note_message)
 
     interface_code = 'T110'
     base64_message = build_base64_string(credit_note_message)
@@ -1008,7 +1042,13 @@ def upload_credit_note(request):
                             
                             if content_json.get('refundInvoiceNo') == None:
                                 message = 'Credit note generated awaiting client approval'
-                                uri = 'http://localhost:8000/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber
+                                uri = ''
+
+                                if service_name == 'item credit notes':
+                                    uri = 'http://localhost/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber+'&service_name=item credit notes'
+                                else:
+                                    uri = 'http://localhost/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber+'&service_name=service credit notes'
+                                
                                 upex = requests.get(uri)
 
                                 if upex.status_code == 200:
@@ -1045,9 +1085,16 @@ def upload_credit_note(request):
                                         # get fields
                                         verification_code = content_json['basicInformation']['antifakeCode']
                                         qrcode = content_json['summary']['qrCode']
+                                        
+                                        uri = ''
 
-                                        #update credit note header
-                                        uri = 'http://localhost:8000/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
+                                        if service_name == 'item credit notes':
+                                            #update credit note header
+                                            uri = 'http://localhost/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code+'&service_name=item credit notes'
+                                        else:
+                                            #update credit note header
+                                            uri = 'http://localhost/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code+'&service_name=service credit notes'
+                                        
                                         upex = requests.get(uri)
 
                                         if upex.status_code == 200:
@@ -1194,11 +1241,10 @@ def dd(request):
 
             # convert to json
             content_json = json.loads(content_decoded)
-            print(content_json)
 
             if content_json.get('refundInvoiceNo') == None:
                 message = 'Credit note generated awaiting client approval'
-                uri = 'http://localhost:8000/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber
+                uri = 'http://localhost/dashboard/update_credit_note_id?credit_note_id='+credit_note_id+'&doc_num='+documentNumber
                 upex = requests.get(uri)
 
                 if upex.status_code == 200:
@@ -1208,8 +1254,6 @@ def dd(request):
 
             else:
                 refund_invoice_num = content_json['refundInvoiceNo']
-
-                print('Refund Invoice Number = '+refund_invoice_num)
 
                 # build interface T108 message
                 interface_t108_message = ('{'
@@ -1279,11 +1323,15 @@ def dd(request):
                         verification_code = content_json['basicInformation']['antifakeCode']
                         qrcode = content_json['summary']['qrCode']
 
-                        print('verification code = '+verification_code)
-                        print('qrcode = '+qrcode)
+                        uri = ''
 
-                        #update credit note header
-                        uri = 'http://localhost:8000/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code
+                        if service_name == 'item credit notes':
+                            #update credit note header
+                            uri = 'http://localhost/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code+'&service_name=item credit notes'
+                        else:
+                            #update credit note header
+                            uri = 'http://localhost/dashboard/update_credit_note_header?ura_invoice_num='+ refund_invoice_num +'&qrcode='+qrcode+'&doc_num='+documentNumber+'&ura_ref_no='+credit_note_id+'&verification_code='+verification_code+'&service_name=service credit notes'
+                        
                         upex = requests.get(uri)
 
                         if upex.status_code == 200:

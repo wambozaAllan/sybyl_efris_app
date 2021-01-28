@@ -8,7 +8,7 @@ $(document).ready(function(){
 
     function loadCreditNotes(page=1) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/load_credit_notes?page="+page,
+            url: "http://localhost/dashboard/load_credit_notes?page="+page,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -117,7 +117,7 @@ $(document).ready(function(){
                     $('#pending-loader').show();
 
                     $.ajax({
-                        url: "http://localhost:8000/dashboard/dd?credit_note_id="+x+"&v="+v,
+                        url: "http://localhost/dashboard/dd?credit_note_id="+x+"&v="+v,
                         beforeSend: function(request) {
                             console.log("before send");
                         },
@@ -199,7 +199,7 @@ $(document).ready(function(){
 
      function searchCreditNote(doc_num) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/search_credit_note?doc_num="+doc_num,
+            url: "http://localhost/dashboard/search_credit_note?doc_num="+doc_num,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -360,7 +360,7 @@ $(document).ready(function(){
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost:8000/dashboard/upload_credit_note?documentNumber="+documentNumber+"&service_name="+serviceName,
+                url: "http://localhost/dashboard/upload_credit_note?documentNumber="+documentNumber+"&service_name="+serviceName,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");

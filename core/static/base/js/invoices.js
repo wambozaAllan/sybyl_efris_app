@@ -8,7 +8,7 @@ $(document).ready(function(){
 
     function loadInvoices(page=1) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/load_invoices?page="+page,
+            url: "http://localhost/dashboard/load_invoices?page="+page,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -56,7 +56,7 @@ $(document).ready(function(){
 
                     let rowCount = $('<td>'+ row +'</td>');
                     let antifakeCode = $('<td>'+data[counter].antifakeCode+'</td>');
-                    let documentDateCol = $('<td>'+documentDate+'</td>');
+                    let documentDateCol = $('<td>'+dateTime+'</td>');
                     let operator = $('<td>'+data[counter].operator+'</td>');
                     let invoiceType = $('<td>'+data[counter].invoiceType+'</td>');
                     let customerName = $('<td>'+data[counter].customerName+'</td>');
@@ -146,7 +146,7 @@ $(document).ready(function(){
 
     function searchInvoice(doc_num) {
         $.ajax({
-            url: "http://localhost:8000/dashboard/search_invoice?doc_num="+doc_num,
+            url: "http://localhost/dashboard/search_invoice?doc_num="+doc_num,
             beforeSend: function(request) {
                 console.log("before send");
             },
@@ -195,7 +195,7 @@ $(document).ready(function(){
 
                     let rowCount = $('<td>1</td>');
                     let antifakeCode = $('<td>'+data.antifakeCode+'</td>');
-                    let documentDateCol = $('<td>'+data.documentDate+'</td>');
+                    let documentDateCol = $('<td>'+dateTime+'</td>');
                     let operator = $('<td>'+data.operator+'</td>');
                     let invoiceType = $('<td>'+data.invoiceType+'</td>');
                     let customerName = $('<td>'+data.customerName+'</td>');
@@ -265,7 +265,7 @@ $(document).ready(function(){
             var documentNumber = s[0].value;
 
             $.ajax({
-                url: "http://localhost:8000/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
+                url: "http://localhost/dashboard/upload_invoice?documentNumber="+documentNumber+"&service_name="+serviceName,
                 beforeSend: function(request) {
                     $('#e-loader').show();
                     console.log("before send");
