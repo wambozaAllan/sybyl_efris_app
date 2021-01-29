@@ -1,0 +1,528 @@
+2021-01-29 07:51:55 [INFO    ] (autoreload.run_with_reloader) Watching for file changes with StatReloader
+2021-01-29 07:51:55 [INFO    ] (autoreload.run_with_reloader) Watching for file changes with StatReloader
+2021-01-29 07:54:57 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 07:54:57 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 07:54:57 [WARNING ] (log.log_response) Not Found: /favicon.ico
+2021-01-29 07:54:57 [WARNING ] (log.log_response) Not Found: /favicon.ico
+2021-01-29 07:55:52 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 07:55:52 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 07:58:09 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 07:58:09 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:00:29 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 08:00:29 [ERROR   ] (log.log_response) Internal Server Error: /dashboard/invoices/
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 233, in _get_session
+    return self._session_cache
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\core\handlers\base.py", line 179, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 20, in _wrapped_view
+    if test_func(request.user):
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\decorators.py", line 44, in <lambda>
+    lambda u: u.is_authenticated,
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 240, in inner
+    self._setup()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\functional.py", line 376, in _setup
+    self._wrapped = self._setupfunc()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 23, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\middleware.py", line 11, in get_user
+    request._cached_user = auth.get_user(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 174, in get_user
+    user_id = _get_user_session_key(request)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\auth\__init__.py", line 58, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 65, in __getitem__
+    return self._session[key]
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\base.py", line 238, in _get_session
+    self._session_cache = self.load()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 43, in load
+    s = self._get_session_from_db()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\contrib\sessions\backends\db.py", line 32, in _get_session_from_db
+    return self.model.objects.get(
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 425, in get
+    num = len(clone)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 269, in __len__
+    self._fetch_all()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 1308, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\query.py", line 53, in __iter__
+    results = compiler.execute_sql(chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\db\models\sql\compiler.py", line 1154, in execute_sql
+    cursor = self.connection.cursor()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\site-packages\django\utils\asyncio.py", line 19, in inner
+    event_loop = asyncio.get_event_loop()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 639, in get_event_loop
+    self.set_event_loop(self.new_event_loop())
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\events.py", line 659, in new_event_loop
+    return self._loop_factory()
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\windows_events.py", line 310, in __init__
+    super().__init__(proactor)
+  File "c:\users\administrator\appdata\local\programs\python\python39\lib\asyncio\proactor_events.py", line 632, in __init__
+    signal.set_wakeup_fd(self._csock.fileno())
+ValueError: set_wakeup_fd only works in main thread of the main interpreter
+2021-01-29 08:08:07 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:08:07 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:12:13 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:12:13 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:18:07 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:18:07 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:24:11 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:24:11 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:30:02 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:30:02 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:42:46 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:42:46 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:47:42 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:47:42 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 08:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:03:20 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 09:03:20 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 09:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:09:32 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:09:32 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:12:20 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 09:12:20 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 09:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:41:06 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:41:06 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 09:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:00:55 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:00:55 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:25:15 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:25:15 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 10:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:08:21 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:08:21 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:12:34 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:12:34 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:42:17 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:42:17 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:50:53 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:50:53 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:54:58 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 11:54:58 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 11:54:58 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 11:54:58 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 11:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 11:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:16:54 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:16:54 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:25:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:26:17 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:26:17 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:35:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:45:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:45:47 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:45:47 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 12:55:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:05:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:15:12 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:39:48 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:39:48 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 13:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:35:29 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:35:29 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 14:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:13:24 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:13:24 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:47:06 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 15:47:06 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 15:47:06 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 15:47:06 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 15:50:42 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 15:50:42 [ERROR   ] (exception.response_for_exception) Invalid HTTP_HOST header: 'efris-svr02'. You may need to add 'efris-svr02' to ALLOWED_HOSTS.
+2021-01-29 15:50:42 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 15:50:42 [WARNING ] (log.log_response) Bad Request: /
+2021-01-29 15:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:59:03 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 15:59:03 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:02:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:12:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:20:11 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 16:20:11 [WARNING ] (log.log_response) Not Found: /DevMgmt/DiscoveryTree.xml
+2021-01-29 16:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:22:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:32:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:40:13 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:40:13 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:42:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:52:20 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:59:14 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
+2021-01-29 16:59:14 [WARNING ] (log.log_response) Not Found: /StableWSDiscoveryEndpoint/schemas-xmlsoap-org_ws_2005_04_discovery
